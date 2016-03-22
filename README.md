@@ -1,7 +1,7 @@
 Title here
 ===
 
-This is an an application that allows you to create blog posts, and add code snippets that use highlighting styles into the page.
+Stuff and things
 
 
 ### Environment setup
