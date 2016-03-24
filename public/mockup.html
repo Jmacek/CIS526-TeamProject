@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        div{
+            display:inline-table;
+            border:1px solid black;
+            width:30%;
+            height:200px;
+            margin:1%;
+            float:left;
+            padding:1%;
+        }
+        h3, h2{
+            width: 30%;
+            display: inline-block;
+            margin: 1%;
+            text-align: center;
+        }
+        span.writing{
+
+        }
+        [class*=player1]{
+            color:blue;
+        }
+        [class*=player2]{
+            color:red;
+        }
+        span.writing:focus{
+            outline:none;
+        }
+        [id~=player] span{
+
+        }
+        #current{
+            padding-top:10px;
+        }
+        .hidden{
+            display:none;
+        }
+    </style>
+</head>
+<body>
+
+
+<h2 class="player1">Player 1</h2>
+<h2>Current Word: <br> <em><span id="current">This</span></em></h2>
+<h2 class="player2">Player 2</h2>
+<br>
+
+<div id="player1" >
+    <span class="writing" contenteditable="true"></span>
+</div>
+
+<div id="challenge1"></div>
+
+<div id="player2">
+    <span class="writing" contenteditable="true"></span>
+</div>
+
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script>
+    $(function(){
+        challenge = "This is some test text";
+        //var words = $('#challenge1').text().split(' ');
+        words = challenge.split(' ');
+
+        var toReplace = [];
+        $.each(words,function(index,value){
+            toReplace [index] = "<span class='hidden'>"+value+" </span>";
+        });
+        $('#challenge1').html(toReplace.join(' '));
+        currentWord = 0;
+
+        function setSelectionRange(input, selectionStart, selectionEnd) {
+            if (input.setSelectionRange) {
+                console.log('if');
+                input.focus();
+                input.setSelectionRange(selectionStart, selectionEnd);
+            }
+            else if (input.createTextRange) {
+                console.log('else');
+                var range = input.createTextRange();
+                range.collapse(true);
+                range.moveEnd('character', selectionEnd);
+                range.moveStart('character', selectionStart);
+                range.select();
+            }
+        }
+
+        function setCaretToPos (input, pos) {
+            setSelectionRange(input, pos, pos);
+        }
+
+        /*$('#player1').on('click',function(){
+         console.log('hey');
+         var span = $('#player1 span.writing')[0];
+         setCaretToPos(span,0);
+         });*/
+
+        $('span.writing').on('keyup',function(){
+
+            var toTest = $.trim($(this)[0].innerText);
+            var actual = $('#current')[0].innerHTML;
+            console.log("toTest = ", toTest);
+            var player = $(this).parent()[0].id;
+            if(toTest === actual){
+                $('#challenge1 span')[currentWord].className = player;
+                currentWord = currentWord + 1;
+                $('#current')[0].innerHTML = words[currentWord];
+                $('span.writing').before("<span class='completed-"+player+"'>"+actual+" </span>");
+                $('span.writing').html('&nbsp');
+                var span = $('#player1 span.writing')[0];
+                setCaretToPos(span,0,0);
+            }
+        });
+    });
+
+</script>
+</html>
