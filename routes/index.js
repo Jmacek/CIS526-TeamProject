@@ -5,5 +5,8 @@ var router = express.Router();
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
+router.get('/mockup', function(req, res, next) {
+  res.render('mockup', { title: 'Mockup Page' });
+});
 
 module.exports = router;
