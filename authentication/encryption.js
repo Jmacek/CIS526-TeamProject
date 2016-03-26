@@ -152,6 +152,12 @@ var Encryption = {
         //verify with pubKey.verify(data, sig,'utf8','base64')
     },
 
+    asymDecrypt:function(encrypted){
+        var privKey = getPrivate();
+        var decrypted = privKey.decrypt(encrypted,'json');
+        return decrypted;
+    },
+
     symmEncrypt:function(plaintext){
         var symmKey = getSymmmetric();
         var cipher = crypto.createCipher(symmAlgorithm,symmKey);
