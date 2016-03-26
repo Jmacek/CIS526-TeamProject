@@ -2,7 +2,55 @@ body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
-
+h1 {
+  text-align: center;
+}
+h2 {
+  text-align: center;
+}
 a {
   color: #00B7FF;
+}
+/* centered columns styles */
+.row-centered {
+  text-align:center;
+}
+.col-centered {
+  display:inline-block;
+  float:none;
+  /* reset the text-align */
+  text-align:left;
+  /* inline-block space fix */
+  margin-right:-4px;
+}
+.col-max {
+  /* custom max width */
+  max-width:500px;
+  width: 50%;
+  float: none;
+}
+.challengeBox{
+  display:inline-table;
+  border:1px solid black;
+  width:30%;
+  height:200px;
+  margin:1%;
+  float:left;
+  padding:1%;
+}
+.challengeDisplay{
+  display:inline-table;
+  width:30%;
+  margin:1%;
+  float:left;
+  padding:1%;
+}
+.player1{
+  color: red;
+}
+.challenge{
+  color: black;
+}
+.player2{
+  color: blue;
 }
