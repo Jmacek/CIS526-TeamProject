@@ -1,58 +1,58 @@
 /**
  * Created by Matt on 3/26/2016.
  */
-var encryption = include('../authentication/encryption'),
-    formidable = include('formidable');
+var encryption = require('../authentication/encryption'),
+    db = require('../database/db');
 
-var loginLocation = 'login.html';
-var logOutLocation = 'logout.html';
+var loginLocation = 'login';
+var logOutLocation = 'logout';
 
 var Session = {
     new:function(req, res){
-        req.session.publicKey = encryption.servePublicKey();
-        res.render(loginLocation, {message:'',user:req.user, pubKey:req.session.publicKey});
+        //req.session.publicKey = encryption.servePublicKey();
+        res.render(loginLocation, { title: 'Login',message:'',pubKey:encryption.servePublicKey()});
     },
 
     create:function(req,res){
         req.session.reset();
-        req.session.publicKey = encryption.servePublicKey();
-        var form = new formidable.IncomingForm();
-        form.parse(req, function(err, fields, files){
-            var encrypted = fields.encrypted;
-            var decrypted = encryption.asymDecrypt(encrypted);
-            console.log(decrypted);
+        //console.log('in create');
+        //console.log(req.body);
+        var encrypted = req.body.encrypted;
+        //console.log('encrypted = ',encrypted);
+        var decrypted = encryption.asymDecrypt(encrypted);
+        //console.log(decrypted);
 
-            db.get("SELECT * from users WHERE username = ?", decrypted.username, function(err,user){
-                if(err || !user)
-                    return res.render(loginLocation,{message:"Username/Password not found. Please try again.", user:req.user, pubKey:req.session.publicKey});
-                var digest = encryption.hash(decrypted.password, user.salt);
-                if(user.passwordDigest !== digest)
-                    return res.render(loginLocation,{message:"Username/Password not found. Please try again.", user:req.user, pubKey:req.session.publicKey});
-                req.session.user = user.username;
-                console.log(req.session.user, " has logged in.");
-                return res.redirect('/index');
-            });
-        })
+        db.get("SELECT * from Users WHERE username = ?", decrypted.username, function(err,user){
+            if(err || !user)
+                return res.render(loginLocation,{title: 'Login',message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey()});
+            var digest = encryption.hash(decrypted.password, user.salt);
+            if(user.passwordDigest !== digest)
+                return res.render(loginLocation,{title: 'Login',message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey()});
+            req.session.user = user.username;
+            console.log(req.session.user, " has logged in.");
+            return res.redirect('/');
+        });
     },
 
     destroy:function(req, res){
         req.session.reset();
         res.render(logOutLocation, {user: {username:"Guest"}});
+    },
+
+    loadUser: function(req, res, next){
+        if(req.session && req.session.user){
+            db.get("SELECT * from Users WHERE username = ?", req.session.user, function(err,user){
+                if(err) return res.sendStatus(500);
+                req.user = user;
+                console.log("Loading user: ",user);
+                return next();
+            });
+        }
+        else{
+            req.user = {username:"Guest"};
+            next();
+        }
     }
 };
-
-function loadUser(req, res, next){
-    if(req.session && req.session.user){
-        db.get("SELECT * from users WHERE username = ?", req.session.user, function(err,user){
-            if(err) return res.sendStatus(500);
-            req.user = user;
-            return next();
-        });
-    }
-    else{
-        req.user = {username:"Guest"};
-        next();
-    }
-}
 
 module.exports = exports = Session;

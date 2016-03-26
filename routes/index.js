@@ -1,5 +1,9 @@
 var express = require('express');
 var router = express.Router();
+var encryption = require('../authentication/encryption');
+var db = require('../database/db');
+
+var session = require('./session');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -14,10 +18,31 @@ router.get('/challenge', function(req, res, next) {
 router.get('/scoreboard', function(req, res, next) {
   res.render('scoreboard', { title: 'Scoreboard page' });
 });
-router.get('/login', function(req, res, next) {
-  res.render('login', { title: 'Login' });
-});
+router.get('/login', session.new);
+router.post('/login',session.create);
+
 router.get('/register', function(req, res, next) {
-  res.render('register', { title: 'Register Here' });
+  res.render('register', { title: 'Register Here',pubKey:encryption.servePublicKey() });
 });
+
+router.post('/register', function(req, res){
+  req.session.reset();
+  //console.log('in create');
+  //console.log(req.body);
+  var encrypted = req.body.encrypted;
+  //console.log('encrypted = ',encrypted);
+  var decrypted = encryption.asymDecrypt(encrypted);
+  console.log(decrypted);
+
+  var salt = encryption.salt();
+  var hash = encryption.hash(decrypted.password,salt);
+
+  db.run("INSERT INTO USERS (username,passwordDigest, salt) VALUES (?,?,?)",
+      decrypted.username,
+      hash,
+      salt);
+
+  session.create(req,res);
+});
+
 module.exports = router;
