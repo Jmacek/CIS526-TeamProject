@@ -1,7 +1,25 @@
+include mixins
+
 doctype html
 html
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    //- Bootswatch Theme
+    link(href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.0/flatly/bootstrap.min.css", rel="stylesheet")
+    script( src='/javascripts/jquery.min.js' )
+    script( src='/bootstrap/js/bootstrap.min.js' )
+
+
+
   body
+    +nav("Project name", "dropdown_menu")
+      +nav_item("/", "active") Home
+      +nav_item("scoreboard", "active") Scoreboard
+      +nav_item("challenge", "active") New Game
+      //TODO: when userauth is done, display appropriate links when logged in
+      +nav_item("login", "") Login
+      +nav_item("register", "") Sign Up
+
     block content
