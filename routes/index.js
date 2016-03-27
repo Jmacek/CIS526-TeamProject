@@ -37,7 +37,7 @@ router.post('/register', function(req, res){
   var salt = encryption.salt();
   var hash = encryption.hash(decrypted.password,salt);
 
-  db.run("INSERT INTO USERS (username,passwordDigest, salt) VALUES (?,?,?)",
+  db.run("INSERT INTO USERS (username,passwordDigest, salt, admin) VALUES (?,?,?,0)",
       decrypted.username,
       hash,
       salt);
