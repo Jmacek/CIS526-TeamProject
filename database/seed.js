@@ -1,5 +1,5 @@
 var sqlite3 = require('sqlite3'),
-    db = new sqlite3.Database('development.sqlite3');
+    db = new sqlite3.Database('../development.sqlite3'); //this one is fine because we only ever run seed.js directly
 
 db.serialize(function(){
 
