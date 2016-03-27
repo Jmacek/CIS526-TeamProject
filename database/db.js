@@ -1,9 +1,9 @@
 var sqlite3 = require('sqlite3'),
     fs = require('fs'),
-    db = new sqlite3.Database('../database/development.sqlite3');
+    db = new sqlite3.Database('database/development.sqlite3');
 
 //checks if database has been initilized
-fs.access('../database/development.sqlite3', fs.F_OK, function(err){
+fs.access('database/development.sqlite3', fs.F_OK, function(err){
     if(err) seed();
 });
 

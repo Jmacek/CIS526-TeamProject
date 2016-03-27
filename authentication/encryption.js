@@ -13,12 +13,12 @@ var tinyCipher = crypto.createCipher(symmAlgorithm, secret);
 var tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
 
 //path location of keys
-const privFile = "../authentication/privKey.txt";
-const pubFile = "../authentication/pubKey.txt";
+const privFile = "authentication/privKey.txt";
+const pubFile = "authentication/pubKey.txt";
 const symmFile = "authentication/symmKey.txt";
 
 //loads or generates keys
-fs.access('../authentication/privKey.txt', fs.F_OK, function(err){
+fs.access(privFile, fs.F_OK, function(err){
     if(err) seed();
 });
 
