@@ -38,11 +38,12 @@ router.post('/register', function(req, res){
   var hash = encryption.hash(decrypted.password,salt);
 
   db.run("INSERT INTO USERS (username,passwordDigest, salt, admin) VALUES (?,?,?,0)",
-      decrypted.username,
-      hash,
-      salt);
-
-  session.create(req,res);
+      decrypted.username, hash, salt, function(err){
+          if(err)
+            res.render('register', { title: 'Register Here', message:"Name already exists. Please choose a different username", pubKey:encryption.servePublicKey() });
+          else
+            session.create(req,res);
+      });
 });
 
 module.exports = router;
