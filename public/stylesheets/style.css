@@ -54,3 +54,6 @@ a {
 .player2{
   color: blue;
 }
+.hidden{
+  display:none;
+}

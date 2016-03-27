@@ -1,11 +1,17 @@
 extends layout
 
+block scripts
+    script( src = '/javascripts/toAdd.js')
+    //script( src = '/javascripts/clientEncryption.js')
+
 block content
     .site-wrapper(style='background-size: cover')
         .site-wrapper-inner
             .cover-container.row.row-centered
                 .inner.cover.col-centered.col-max
-                    form.form-signin(action='/login', method='post')
+                    form#actualSubmit(action='/login', method='post')
+                        input(type='hidden', name='encrypted')
+                    form#loginForm.form-signin(action='/login', method='post')
                         input(type='hidden', name='${_csrf.parameterName}', value='${_csrf.token}')
                         h2.form-signin-heading Please sign in
                         label.sr-only(for='inputEmail') Email address
@@ -19,4 +25,5 @@ block content
                             |  You have been signed out.
                     c:if(test='${param.error ne null}')
                         .alert.alert-danger(role='alert') Incorrect username/password.
+                    p#pubKey.hidden= pubKey
 //TODO: When userauth is working, modify test cases to actually work

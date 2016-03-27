@@ -15,7 +15,7 @@ db.serialize(function(){
 
     //Drop table if exists
     db.run("DROP TABLE IF EXISTS Users");
-    db.run("CREATE TABLE Users (userID INTEGER PRIMARY KEY, username TEXT, passwordDigest TEXT, salt TEXT, admin BOOLEAN)");
+    db.run("CREATE TABLE Users (userID INTEGER PRIMARY KEY, username TEXT UNIQUE, passwordDigest TEXT, salt TEXT, admin BOOLEAN)");
 
     //Drop table if exists
     db.run("DROP TABLE IF EXISTS Challenges");
