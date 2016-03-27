@@ -13,7 +13,7 @@ var tinyCipher = crypto.createCipher(symmAlgorithm, secret);
 var tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
 
 //loads or generates keys
-fs.access('authentication/privKey.txt', fs.F_OK, function(err){
+fs.access('../authentication/privKey.txt', fs.F_OK, function(err){
     if(err) seed();
 });
 
@@ -30,7 +30,7 @@ function seed() {
     var symmKeySave = tinyCipher.update(symmKey,'binary',keyStoreType);
     symmKeySave += tinyCipher.final(keyStoreType);
 
-    fs.writeFileSync('authentication/symmKey.txt',symmKeySave,keyStoreType);
+    fs.writeFileSync('../authentication/symmKey.txt',symmKeySave,keyStoreType);
 
     //generate asymmetric public and private keys
     var key = new nodeRSA({b:2048});
@@ -43,7 +43,7 @@ function seed() {
     var pubKeySave = tinyCipher.update(pubKeyPEM,asymPEMKeyType,keyStoreType);
     pubKeySave += tinyCipher.final(keyStoreType);
 
-    fs.writeFileSync('authentication/pubKey.txt',pubKeySave,keyStoreType);
+    fs.writeFileSync('../authentication/pubKey.txt',pubKeySave,keyStoreType);
 
     //extract and save private key
     var privKeyPEM = key.exportKey(privImportType);
@@ -53,12 +53,12 @@ function seed() {
     var privKeySave = tinyCipher.update(privKeyPEM,asymPEMKeyType,keyStoreType);
     privKeySave += tinyCipher.final(keyStoreType);
 
-    fs.writeFileSync('authentication/privKey.txt',privKeySave,keyStoreType);
+    fs.writeFileSync('../authentication/privKey.txt',privKeySave,keyStoreType);
 }
 
 function getSymmmetric(){
     //read the encrypted key
-    var symmKeySave = fs.readFileSync('authentication/symmKey.txt',keyStoreType);
+    var symmKeySave = fs.readFileSync('../authentication/symmKey.txt',keyStoreType);
 
     //decipher the symmetric key
     var symmKey = tinyDecipher.update(symmKeySave,keyStoreType,'base64');
@@ -71,7 +71,7 @@ function getPublic(){
     var pubKey = new nodeRSA();
 
     //read the encrypted key
-    var pubKeySave = fs.readFileSync('authentication/pubKey.txt',keyStoreType);
+    var pubKeySave = fs.readFileSync('../authentication/pubKey.txt',keyStoreType);
 
     //decipher and store the public key
     tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
@@ -85,7 +85,7 @@ function getPublic(){
 
 function getPublicPem(){
     //read the encrypted key
-    var pubKeySave = fs.readFileSync('authentication/pubKey.txt',keyStoreType);
+    var pubKeySave = fs.readFileSync('../authentication/pubKey.txt',keyStoreType);
 
     //decipher and store the public key
     tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
@@ -100,7 +100,7 @@ function getPrivate() {
     var privKey = new nodeRSA();
 
     //read the encrypted key
-    var privKeySave = fs.readFileSync('authentication/privKey.txt',keyStoreType);
+    var privKeySave = fs.readFileSync('../authentication/privKey.txt',keyStoreType);
 
     //decipher and store the private key
     tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
