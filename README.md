@@ -15,4 +15,9 @@ etc etc etc.
 
 **development**
 
-- Home -- http://localhost:80/
+- Home -- http://localhost:8080/
+- Login -- http://localhost:8080/login
+- Challange -- http://localhost:8080/challenge
+- Scoreboard -- http://localhost:8080/scoreboard
+- Register -- http://localhost:8080/register
+- Mockup -- http://localhost:8080/mockup
