@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Chat Example</title>
+    <link href="/chat.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <textarea id="your_box" onkeyup="readText()">things and stuff
+    </textarea>
+
+    <textarea id="their_box" onkeyup="readText()"> things and stuff</textarea>
+
+    <!--<ul id="chat-messages"></ul>-->
+    <!--<form id="chat-form" action="">-->
+      <!--<input id="chat-message" autocomplete="off" />-->
+      <!--<button>Send</button>-->
+    <!--</form>-->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+      var x = document.getElementById("your_box");
+      var y = document.getElementById("their_box");
+
+
+      function readText(){
+        //console.log("test",socket);
+        debugger;
+        socket.emit('text_change', x.value);
+      }
+
+
+        socket.on('text_change', function(msg){
+          y.value = msg;
+          //console.log('message: ' + msg);
+        });
+
+    </script>
+  </body>
+</html>
