@@ -5,46 +5,29 @@
     <link href="/chat.css" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <textarea id="your_box" >things and stuff
-    </textarea>
+    <textarea id="player1_box1" >things and stuff</textarea>
 
-    <textarea id="their_box" > things and stuff</textarea>
+    <textarea id="player2_box2" > things and stuff</textarea>
 
-    <!--<ul id="chat-messages"></ul>-->
-    <!--<form id="chat-form" action="">-->
-      <!--<input id="chat-message" autocomplete="off" />-->
-      <!--<button>Send</button>-->
-    <!--</form>-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io();
-      var x = document.getElementById("your_box");
-      var y = document.getElementById("their_box");
 
       $('textarea').on("keyup",function(){
         var boxID = this.id;
-        readText(boxID);
-          console.log(this.id);
-      });
-      function readText(boxID){
-        //console.log("test",socket);
         var boxValue = $('#'+boxID).val();
-        console.log(boxValue);
-        socket.emit('text_change_'+boxID, boxValue);
-      }
 
-
-        socket.on('text_change_your_box', function(msg){
-          $('#your_box').val(msg);
-          //console.log('message: ' + msg);
-        });
-
-      socket.on('text_change_their_box', function(msg){
-        $('#their_box').val(msg);
-        //console.log('message: ' + msg);
+        socket.emit('text_change',[boxID,boxValue]);
       });
 
+      socket.on('text_change', function(msg){
+        var id = msg[0];
+        var text = msg[1];
+        console.log('Recipient = ' + id);
+        console.log('    Text: ' + text);
+        $('#'+id).val(text);
+      });
     </script>
   </body>
 </html>

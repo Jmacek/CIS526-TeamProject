@@ -11,19 +11,25 @@ var socketArr = [];
 
 io.on('connection', function(socket)  {
 
-  socketArr.push(socket);
-  console.log("A user connected");
-  socket.on('disconnect', function() {console.log("A user disconnected")});
-  socket.on('text_change_your_box', function(msg){
-    console.log('A user said', msg);
-    socketArr.forEach(function(elem, index, arr){elem.emit('text_change_your_box', msg)});
+  socketArr.push(socket)
+
+  var id = '';
+  for(var propertyName in this.connected) {
+    id=propertyName;
+  }
+  var clientIP = this.connected[id].client.conn.remoteAddress;
+  console.log("(IPv6) ",clientIP,"connected");
+
+  socket.on('disconnect', function() {console.log(clientIP," disconnected")});
+
+  socket.on('text_change', function(msg){
+    //console.log(this);
+    var boxID = msg[0];
+    var text = msg[1];
+    console.log(boxID,'changed to:', text);
+    socketArr.forEach(function(elem, index, arr){elem.emit('text_change', msg)});
     //io.emit('text_change', msg);8
-  })
-  socket.on('text_change_their_box', function(msg){
-    console.log('A user said', msg);
-    socketArr.forEach(function(elem, index, arr){elem.emit('text_change_their_box', msg)});
-    //io.emit('text_change', msg);8
-  })
+  });
 });
 
 http.listen(8080, function(){console.log("listening on port 8080...")});
