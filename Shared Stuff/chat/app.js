@@ -14,11 +14,16 @@ io.on('connection', function(socket)  {
   socketArr.push(socket);
   console.log("A user connected");
   socket.on('disconnect', function() {console.log("A user disconnected")});
-  socket.on('text_change', function(msg){
+  socket.on('text_change_your_box', function(msg){
     console.log('A user said', msg);
-    socketArr.forEach(function(elem, index, arr){elem.emit('text_change', msg)});
+    socketArr.forEach(function(elem, index, arr){elem.emit('text_change_your_box', msg)});
+    //io.emit('text_change', msg);8
+  })
+  socket.on('text_change_their_box', function(msg){
+    console.log('A user said', msg);
+    socketArr.forEach(function(elem, index, arr){elem.emit('text_change_their_box', msg)});
     //io.emit('text_change', msg);8
   })
 });
 
-http.listen(8080, function(){console.log("listening on port 80...")});
+http.listen(8080, function(){console.log("listening on port 8080...")});
