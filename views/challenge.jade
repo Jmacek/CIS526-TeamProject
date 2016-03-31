@@ -1,34 +1,33 @@
 extends layout
 include mixins
-
-block content
-    h1= title
-    br
-    .row-centered
-        .row.row-centered
-            .col-xs-3.col-centered.challengedisplay
-                .item
-                    span
-                        h2.player1 Player 1
-            .col-xs-3.col-centered.challengedisplay
-                .item
-                    span
-                        h2.challenge Challenges
-            .col-xs-3.col-centered.challengedisplay
-                .item
-                    span
-                        h2.player2 Player 2
+    block content
+h1= title
+br
+.row-centered
+    .row
+        .col-xs-3.col-centered.challengedisplay
+            .item
+                span
+                    h2.player1 Player 1
+        .col-xs-3.col-centered.challengedisplay
+            .item
+                span
+                    h2.challenge Challenges
+        .col-xs-3.col-centered.challengedisplay
+            .item
+                span
+                    h2.player2 Player 2
     - for (var i = 0; i < 3; i++){
-        .row.row-centered
-            .col-xs-3.col-centered.player1.challengeBox
-                .item
-                    #player1
-                        span.writing(contenteditable='true')
-            .col-xs-3.col-centered.challenge.challengeBox
-                .item
-                    #challenge1
-            .col-xs-3.col-centered.player2.challengeBox
-                .item
-                    #player2
-                        span.writing(contenteditable='true')
+    .row
+        .col-xs-3.col-centered.player1.challengeBox
+            .item
+                #player1
+                    span.writing(contenteditable='true')
+        .col-xs-3.col-centered.challenge.challengeBox
+            .item
+                #challenge1
+        .col-xs-3.col-centered.player2.challengeBox
+            .item
+                #player2
+                    span.writing(contenteditable='true')
     - }
