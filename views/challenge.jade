@@ -2,33 +2,37 @@ extends layout
 include mixins
 
 block content
-    h1= title
+    h1.centered= title
     br
-    .row-centered
-        .row
-            .col-xs-3.col-centered.challengedisplay
+    .row-centered.row
+        .col-xs-4.col-centered
+            .challengedisplay
                 .item
                     span
                         h2.player1 Player 1
-            .col-xs-3.col-centered.challengedisplay
+        .col-xs-4.col-centered
+            .challengedisplay
                 .item
                     span
                         h2.challenge Challenges
-            .col-xs-3.col-centered.challengedisplay
+        .col-xs-4.col-centered
+            .challengedisplay
                 .item
                     span
                         h2.player2 Player 2
-        - for (var i = 0; i < 3; i++){
-            .row
-                .col-xs-3.col-centered.player1.challengeBox
+    - for (var i = 0; i < 3; i++){
+            .col-xs-4.col-centered
+                .player1.challengeBox
                     .item
                         #player1
                             span.writing(contenteditable='true')
-                .col-xs-3.col-centered.challenge.challengeBox
+            .col-xs-4.col-centered
+                .challenge.challengeBox
                     .item
-                        #challenge1
-                .col-xs-3.col-centered.player2.challengeBox
+                    #challenge1
+            .col-xs-4.col-centered.player2
+                .challengeBox
                     .item
                         #player2
                             span.writing(contenteditable='true')
-        - }
+    - }
