@@ -32,14 +32,11 @@ a {
 .challengeBox{
   display:inline-table;
   border:1px solid black;
-  width:30%;
+  width:100%;
   height:200px;
   margin:1%;
   float:left;
   padding:1%;
-}
-.col-xs-4 {
-  width: 32.36%;
 }
 .challengeDisplay{
   display:inline-table;
