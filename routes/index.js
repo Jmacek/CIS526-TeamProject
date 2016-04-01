@@ -37,6 +37,10 @@ router.post('/register', function(req, res){
   var salt = encryption.salt();
   var hash = encryption.hash(decrypted.password,salt);
 
+  if(!/^[a-z0-9_-]{3,15}$/.test(decrypted.username)){
+    res.render('register', { title: 'Register Here', message:'Username must be 3 to 15 characters long and only comprise of alphabetic letters & numbers'});
+  }
+
   db.run("INSERT INTO USERS (username,passwordDigest, salt, admin) VALUES (?,?,?,0)",
       decrypted.username, hash, salt, function(err){
           if(err)
