@@ -31,6 +31,8 @@ var Session = {
             req.session.user = user.username;
             console.log(user.username, " has logged in.");
             res.render('index', {
+                title: "Home Page",
+                personalMessage: "Welcome, "+ user.username,
                 user: user.username
             });
             //return res.redirect('/');
