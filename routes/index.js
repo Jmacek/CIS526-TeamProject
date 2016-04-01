@@ -40,7 +40,7 @@ router.post('/register', function(req, res){
   if(!/^[a-z0-9_-]{3,15}$/.test(decrypted.username)){
     return res.render('register', { title: 'Register Here', invalid: true, message:'Username must be 3 to 15 characters long and only comprise of alphabetic letters & numbers'});
   }
-  if(decrypted.username != "Guest"){ //I know, I'm a bad person for lying.
+  if(decrypted.username == "Guest"){ //I know, I'm a bad person for lying.
     return res.render('register', { title: 'Register Here', invalid: true, message:'Name already exists. Please choose a different username'});
   }
 
