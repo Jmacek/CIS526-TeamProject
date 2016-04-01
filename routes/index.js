@@ -7,7 +7,7 @@ var session = require('./session');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Home Page', user: 'Guest' });
+  res.render('index', { title: 'Home Page' });
 });
 router.get('/mockup', function(req, res, next) {
   res.render('mockup', { title: 'Mockup Page' });
@@ -38,13 +38,13 @@ router.post('/register', function(req, res){
   var hash = encryption.hash(decrypted.password,salt);
 
   if(!/^[a-z0-9_-]{3,15}$/.test(decrypted.username)){
-    res.render('register', { title: 'Register Here', message:'Username must be 3 to 15 characters long and only comprise of alphabetic letters & numbers'});
+    return res.render('register', { title: 'Register Here', invalid: true, message:'Username must be 3 to 15 characters long and only comprise of alphabetic letters & numbers'});
   }
 
   db.run("INSERT INTO USERS (username,passwordDigest, salt, admin) VALUES (?,?,?,0)",
       decrypted.username, hash, salt, function(err){
           if(err)
-            res.render('register', { title: 'Register Here', message:"Name already exists. Please choose a different username", pubKey:encryption.servePublicKey() });
+            res.render('register', { title: 'Register Here', invalid: true, message:"Name already exists. Please choose a different username", pubKey:encryption.servePublicKey() });
           else
             session.create(req,res);
       });
