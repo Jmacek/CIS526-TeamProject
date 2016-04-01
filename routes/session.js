@@ -28,9 +28,12 @@ var Session = {
             var digest = encryption.hash(decrypted.password, user.salt);
             if(user.passwordDigest !== digest)
                 return res.render(loginLocation,{title: 'Login',message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey()});
-            req.session.user = user.username;
-            console.log(req.session.user, " has logged in.");
-            return res.redirect('/');
+            //req.session.user = user.username;
+            console.log(user.username, " has logged in.");
+            res.render('index', {
+                user: user.username
+            });
+            //return res.redirect('/');
         });
     },
 
