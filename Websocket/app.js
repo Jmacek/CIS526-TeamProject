@@ -27,7 +27,7 @@ io.on('connection', function(socket)  {
     var boxID = msg[0];
     var text = msg[1];
     console.log(boxID,'changed to:', text);
-    socketArr.forEach(function(elem, index, arr){elem.emit('text_change', msg)});
+    socketArr.forEach(function(elem, index, arr){if (elem !== socket) elem.emit('text_change', msg)});
     //io.emit('text_change', msg);8
   });
 });
