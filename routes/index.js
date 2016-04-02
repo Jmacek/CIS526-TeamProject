@@ -18,8 +18,11 @@ router.get('/challenge', function(req, res, next) {
 router.get('/scoreboard', function(req, res, next) {
   res.render('scoreboard', { title: 'Scoreboard page' });
 });
+
 router.get('/login', session.new);
 router.post('/login',session.create);
+
+router.get('/logout', session.destroy);
 
 router.get('/register', function(req, res, next) {
   res.render('register', { title: 'Register Here',pubKey:encryption.servePublicKey() });
