@@ -8,6 +8,7 @@ fs.access('./database/development.sqlite3', fs.F_OK, function(err){
 });
 
 function seed(){
+    console.log("creating development.sqlite3");
     db.serialize(function(){
         // Drop table if it exists
         db.run("DROP TABLE IF EXISTS Tasks");

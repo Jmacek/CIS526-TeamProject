@@ -1,5 +1,8 @@
 extends layout
-include mixins
+
+block scripts
+    script( src ='https://cdn.socket.io/socket.io-1.4.5.js')
+    script( src ='/javascripts/websockets.js')
 
 block content
     h1.centered= title
@@ -20,19 +23,17 @@ block content
                 .item
                     span
                         h2.player2 Player 2
-    - for (var i = 0; i < 3; i++){
-            .col-xs-4.col-centered
-                .player1.challengeBox
-                    .item
-                        #player1
-                            span.writing(contenteditable='true')
-            .col-xs-4.col-centered
-                .challenge.challengeBox
-                    .item
-                    #challenge1
-            .col-xs-4.col-centered.player2
-                .challengeBox
-                    .item
-                        #player2
-                            span.writing(contenteditable='true')
+    - for (var i = 1; i < 4; i++){
+        .row.row-centered
+            .col-xs-4.col-centered.player1.challengeBox
+                .item
+                    div(id='player1-box'+i)
+                        span.writing.player1(id='player1-w'+i contenteditable='true')
+            .col-xs-4.col-centered.challenge.challengeBox
+                .item
+                    div(id='challenge-'+i)
+            .col-xs-4.col-centered.player2.challengeBox
+                .item
+                    div(id='player2-box'+i)
+                        span.writing.player2(id='player2-w'+i contenteditable='true')
     - }
