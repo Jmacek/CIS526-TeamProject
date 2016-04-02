@@ -45,16 +45,21 @@ var Session = {
     },
 
     loadUser: function(req, res, next){
+        //if(req.url == "/")
+        //    req.url = "index";
         if(req.session && req.session.user){
             db.get("SELECT * from Users WHERE username = ?", req.session.user, function(err,user){
                 if(err) return res.sendStatus(500);
                 req.user = user;
-                //console.log("Loading user: ",user);
+                console.log("Loading user: ",user);
+                //return res.render(req.url.split("/").pop(), {user: user.username, isAdmin: user.admin});
                 return next();
             });
         }
         else{
+            console.log("Inside guest");
             req.user = {username:"Guest"};
+            //res.render(req.url.split("/").pop(), {user: "Guest", isAdmin: false});
             next();
         }
     }

@@ -4,17 +4,8 @@ doctype html
 html
   head
     title= title
-    script(type="text/javascript").
-      userHolder = '#{user}';
-      //so my idea is to store the variable in localStorage,
-      // I can't really think of a better way to do that so if you come up with something better feel free to say so.
-      //Also this logic is really only for the first load of the website since
-      // userid will need to be guest but we don't want to set it each time they go to a page
-      if(userHolder == "" && localStorage.username == undefined)
-        localStorage.username = "Guest";
-      else if(userHolder != "")
-        localStorage.username = userHolder;
-
+    script
+      localStorage.username = '#{user}';
     link(rel='stylesheet', href='/stylesheets/style.css')
     meta(name='viewport', content='width=device-width, initial-scale=1')
     //- Bootswatch Theme
