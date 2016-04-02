@@ -24,7 +24,7 @@ $(function(){
     });
 
     socket.on('identify',function(){
-        var userName = $('#userName').html();
+        var userName = localStorage.username;
         console.log("Setting self as: ", userName);
         $("body").data("playerName",userName);
         console.log("body.data('playerName') set as: ",$("body").data("playerName"));
