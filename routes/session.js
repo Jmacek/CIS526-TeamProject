@@ -24,13 +24,18 @@ var Session = {
 
         db.get("SELECT * from Users WHERE username = ?", decrypted.username, function(err,user){
             if(err || !user)
-                return res.render(loginLocation,{title: 'Login', message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey()});
+                return res.render(loginLocation,{title: 'Login', invalid: true, message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey()});
             var digest = encryption.hash(decrypted.password, user.salt);
             if(user.passwordDigest !== digest)
-                return res.render(loginLocation,{title: 'Login', message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey()});
+                return res.render(loginLocation,{title: 'Login', invalid: true, message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey()});
             req.session.user = user.username;
-            console.log(req.session.user, " has logged in.");
-            return res.redirect('/');
+            console.log(user.username, " has logged in.");
+            res.render('index', {
+                title: "Home Page",
+                personalMessage: "Welcome, "+ user.username,
+                user: user.username
+            });
+            //return res.redirect('/');
         });
     },
 

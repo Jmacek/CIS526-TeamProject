@@ -5,19 +5,21 @@ block scripts
     script( src ='/javascripts/websockets.js')
 
 block content
-    h1= title
+    h1.centered= title
     br
-    .row-centered
-        .row.row-centered
-            .col-xs-3.col-centered.challengedisplay
+    .row-centered.row
+        .col-xs-4.col-centered
+            .challengedisplay
                 .item
                     span
                         h2.player1 Player 1
-            .col-xs-3.col-centered.challengedisplay
+        .col-xs-4.col-centered
+            .challengedisplay
                 .item
                     span
                         h2.challenge Challenges
-            .col-xs-3.col-centered.challengedisplay
+        .col-xs-4.col-centered
+            .challengedisplay
                 .item
                     span
                         h2.player2 Player 2
