@@ -11,7 +11,7 @@ var socketArr = [];
 
 io.on('connection', function(socket)  {
 
-  socketArr.push(socket)
+  socketArr.push(socket);
 
   var id = '';
   for(var propertyName in this.connected) {
