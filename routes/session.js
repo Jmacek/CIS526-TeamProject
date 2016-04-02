@@ -30,35 +30,37 @@ var Session = {
                 return res.render(loginLocation,{title: 'Login', invalid: true, message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey()});
             req.session.user = user.username;
             console.log(user.username, " has logged in.");
+            req.app.locals.username = user.username;
+            req.app.locals.isAdmin = user.isAdmin;
             res.render('index', {
-                title: "Home Page",
-                personalMessage: "Welcome, "+ user.username,
-                user: user.username
+                title: "Home Page"
             });
             //return res.redirect('/');
         });
     },
 
-    destroy:function(req, res){
+    destroy: function(req, res){
         req.session.reset();
-        res.render(logOutLocation, {user: {username:"Guest"}});
+        req.app.locals.username = "Guest";
+        req.app.locals.isAdmin = false;
+        res.render('login', { success: true, message: "You have logged out!", pubKey:encryption.servePublicKey()})
     },
 
     loadUser: function(req, res, next){
-        //if(req.url == "/")
-        //    req.url = "index";
         if(req.session && req.session.user){
             db.get("SELECT * from Users WHERE username = ?", req.session.user, function(err,user){
                 if(err) return res.sendStatus(500);
                 req.user = user;
                 console.log("Loading user: ",user);
-                //return res.render(req.url.split("/").pop(), {user: user.username, isAdmin: user.admin});
+                req.app.locals.username = user.username;
+                req.app.locals.isAdmin = user.isAdmin;
                 return next();
             });
         }
         else{
-            console.log("Inside guest");
             req.user = {username:"Guest"};
+            req.app.locals.username = "Guest";
+            req.app.locals.isAdmin = false;
             //res.render(req.url.split("/").pop(), {user: "Guest", isAdmin: false});
             next();
         }
