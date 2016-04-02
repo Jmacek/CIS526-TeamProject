@@ -13,7 +13,7 @@ router.get('/mockup', function(req, res, next) {
   res.render('mockup', { title: 'Mockup Page' });
 });
 router.get('/challenge', function(req, res, next) {
-  res.render('challenge', { title: 'Challenge Page' });
+  res.render('challenge', { title: 'Challenge Page' , username:req.user.username});
 });
 router.get('/scoreboard', function(req, res, next) {
   res.render('scoreboard', { title: 'Scoreboard page' });

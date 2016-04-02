@@ -49,7 +49,7 @@ var Session = {
             db.get("SELECT * from Users WHERE username = ?", req.session.user, function(err,user){
                 if(err) return res.sendStatus(500);
                 req.user = user;
-                console.log("Loading user: ",user);
+                //console.log("Loading user: ",user);
                 return next();
             });
         }

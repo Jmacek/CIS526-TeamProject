@@ -107,7 +107,9 @@
         $('span.writing').on('keyup',function(){
 
             var toTest = $.trim($(this)[0].innerText);
-            var actual = $('#current')[0].innerHTML;
+            var l = $(this).attr('id').length;
+            var num = $(this).attr('id')[l-1];
+            var actual = $('#current-'+num)[0].innerHTML;
             console.log("toTest = ", toTest);
             var player = $(this).parent()[0].id;
             if(toTest === actual){

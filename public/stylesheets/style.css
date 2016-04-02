@@ -45,13 +45,19 @@ a {
   float:left;
   padding:1%;
 }
-.player1{
+span.writing:focus{
+  outline:none;
+}
+.active{
+  color:green;
+}
+.player1, .completed-player1{
   color: red;
 }
 .challenge{
   color: black;
 }
-.player2{
+.player2, .completed-player2{
   color: blue;
 }
 .hidden{
