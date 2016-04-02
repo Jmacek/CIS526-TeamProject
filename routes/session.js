@@ -58,8 +58,9 @@ var Session = {
             });
         }
         else{
-            console.log("Inside guest");
             req.user = {username:"Guest"};
+            req.app.locals.username = "Guest";
+            req.app.locals.isAdmin = false;
             //res.render(req.url.split("/").pop(), {user: "Guest", isAdmin: false});
             next();
         }
