@@ -14,9 +14,6 @@ var session = require('./routes/session');
 
 var app = express();
 
-//Global variables
-app.locals.username;
-app.locals.isAdmin;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
