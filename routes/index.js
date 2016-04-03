@@ -7,7 +7,7 @@ var session = require('./session');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Home Page' });
+  res.render('index', { title: 'Home Page', username: req.session.user.username, isAdmin: req.session.user.admin});
 });
 router.get('/mockup', function(req, res, next) {
   res.render('mockup', { title: 'Mockup Page' });

@@ -28,21 +28,15 @@ var Session = {
             var digest = encryption.hash(decrypted.password, user.salt);
             if(user.passwordDigest !== digest)
                 return res.render(loginLocation,{title: 'Login', invalid: true, message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey()});
-            req.session.user = user.username;
+            req.session.user = user;
             console.log(user.username, " has logged in.");
-            req.app.locals.username = user.username;
-            req.app.locals.isAdmin = user.isAdmin;
-            res.render('index', {
-                title: "Home Page"
-            });
-            //return res.redirect('/');
+            return res.redirect('/');
         });
     },
 
     destroy: function(req, res){
         req.session.reset();
-        req.app.locals.username = "Guest";
-        req.app.locals.isAdmin = false;
+        req.session.user = {username: "Guest", isAdmin: false};
         res.render('login', { success: true, message: "You have logged out!", pubKey:encryption.servePublicKey()})
     },
 
@@ -51,17 +45,14 @@ var Session = {
             db.get("SELECT * from Users WHERE username = ?", req.session.user, function(err,user){
                 if(err) return res.sendStatus(500);
                 req.user = user;
+                req.session.user = user;
                 console.log("Loading user: ",user);
-                req.app.locals.username = user.username;
-                req.app.locals.isAdmin = user.isAdmin;
                 return next();
             });
         }
         else{
-            req.user = {username:"Guest"};
-            req.app.locals.username = "Guest";
-            req.app.locals.isAdmin = false;
-            //res.render(req.url.split("/").pop(), {user: "Guest", isAdmin: false});
+            req.user = {username:"Guest", isAdmin: false};
+            req.session.user = {username:"Guest", isAdmin: false};
             next();
         }
     }

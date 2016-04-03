@@ -16,9 +16,6 @@ var app = express(),
     server = http.createServer(app),
     io = require('socket.io').listen(server);
 
-//Global variables
-app.locals.username;
-app.locals.isAdmin;
 
 //Websockets in app.js
 io.sockets.on("connection", function(socket) {
