@@ -29,7 +29,6 @@ router.get('/register', function(req, res, next) {
 });
 
 router.post('/register', function(req, res){
-  //req.session.reset();
   //console.log('in create');
   //console.log(req.body);
   var encrypted = req.body.encrypted;
@@ -51,8 +50,10 @@ router.post('/register', function(req, res){
       decrypted.username, hash, salt, function(err){
           if(err)
             res.render('register', { title: 'Register Here', invalid: true, message:"Name already exists. Please choose a different username", pubKey:encryption.servePublicKey() , username: req.session.user.username, isAdmin: req.session.user.admin});
-          else
+          else{
+            req.session.reset();
             session.create(req,res);
+          }
       });
 });
 

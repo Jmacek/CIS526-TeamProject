@@ -14,7 +14,6 @@ var Session = {
     },
 
     create:function(req,res){
-        req.session.reset();
         //console.log('in create');
         //console.log(req.body);
         var encrypted = req.body.encrypted;
@@ -24,10 +23,11 @@ var Session = {
 
         db.get("SELECT * from Users WHERE username = ?", decrypted.username, function(err,user){
             if(err || !user)
-                return res.render(loginLocation,{title: 'Login', invalid: true, message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey()});
+                return res.render(loginLocation,{title: 'Login', invalid: true, message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey(), username: req.session.user.username, isAdmin: req.session.user.admin});
             var digest = encryption.hash(decrypted.password, user.salt);
             if(user.passwordDigest !== digest)
-                return res.render(loginLocation,{title: 'Login', invalid: true, message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey()});
+                return res.render(loginLocation,{title: 'Login', invalid: true, message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey(), username: req.session.user.username, isAdmin: req.session.user.admin});
+            req.session.reset();
             req.session.user = user;
             console.log(user.username, " has logged in.");
             return res.render('index', {title: "Home Page", username: req.session.user.username, isAdmin: req.session.user.admin});
@@ -41,13 +41,14 @@ var Session = {
     },
 
     loadUser: function(req, res, next){
-        //console.log("HERE", req.session.user);
+        console.log("HERE", req.session.user);
         if(req.session && req.session.user && req.session.user.username != "Guest"){
             db.get("SELECT * from Users WHERE username = ?", req.session.user.username, function(err,user){
                 if(err){
                     //return res.render("error", { error: err});
                     return res.sendStatus(500);
                 }
+
                 req.user = user;
                 req.session.user = user;
                 console.log("Loading user: ",user);
