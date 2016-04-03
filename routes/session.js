@@ -21,7 +21,7 @@ var Session = {
         var decrypted = encryption.asymDecrypt(encrypted);
         //console.log(decrypted);
 
-        db.get("SELECT * from Users WHERE username = ?", decrypted.username, function(err,user){
+        db.get("SELECT * from Users WHERE upper(username) = ?", decrypted.username.toUpperCase(), function(err,user){
             if(err || !user)
                 return res.render(loginLocation,{title: 'Login', invalid: true, message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey(), username: req.session.user.username, isAdmin: req.session.user.admin});
             var digest = encryption.hash(decrypted.password, user.salt);
