@@ -10,7 +10,7 @@ var logOutLocation = 'logout';
 var Session = {
     new:function(req, res){
         //req.session.publicKey = encryption.servePublicKey();
-        res.render(loginLocation, { title: 'Login',message:'',pubKey:encryption.servePublicKey()});
+        res.render(loginLocation, { title: 'Login',message:'',pubKey:encryption.servePublicKey(), username: req.session.user.username, isAdmin: req.session.user.admin});
     },
 
     create:function(req,res){
@@ -30,20 +30,24 @@ var Session = {
                 return res.render(loginLocation,{title: 'Login', invalid: true, message:"Username/Password not found. Please try again.", pubKey:encryption.servePublicKey()});
             req.session.user = user;
             console.log(user.username, " has logged in.");
-            return res.redirect('/');
+            return res.render('index', {title: "Home Page", username: req.session.user.username, isAdmin: req.session.user.admin});
         });
     },
 
     destroy: function(req, res){
         req.session.reset();
         req.session.user = {username: "Guest", isAdmin: false};
-        res.render('login', { success: true, message: "You have logged out!", pubKey:encryption.servePublicKey()})
+        res.render('login', { success: true, message: "You have logged out!", pubKey:encryption.servePublicKey(), username: req.session.user.username, isAdmin: req.session.user.admin})
     },
 
     loadUser: function(req, res, next){
-        if(req.session && req.session.user){
-            db.get("SELECT * from Users WHERE username = ?", req.session.user, function(err,user){
-                if(err) return res.sendStatus(500);
+        //console.log("HERE", req.session.user);
+        if(req.session && req.session.user && req.session.user.username != "Guest"){
+            db.get("SELECT * from Users WHERE username = ?", req.session.user.username, function(err,user){
+                if(err){
+                    //return res.render("error", { error: err});
+                    return res.sendStatus(500);
+                }
                 req.user = user;
                 req.session.user = user;
                 console.log("Loading user: ",user);
