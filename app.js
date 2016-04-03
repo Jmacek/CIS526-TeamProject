@@ -12,19 +12,11 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var session = require('./routes/session');
 
-var app = express(),
-    server = http.createServer(app),
-    io = require('socket.io').listen(server);
+var app = express();
 
 //Global variables
 app.locals.username;
 app.locals.isAdmin;
-
-//Websockets in app.js
-io.sockets.on("connection", function(socket) {
-  console.log("App.js websockets in  use");
-});
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
