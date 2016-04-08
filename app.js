@@ -7,6 +7,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var encryption = require('./authentication/encryption');
 var http = require("http");
+var fs = require("fs");
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -14,6 +15,8 @@ var session = require('./routes/session');
 
 var app = express();
 
+var challenges = JSON.parse(fs.readFileSync('./database/challenges.json', 'utf8'));
+console.log(challenges);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
