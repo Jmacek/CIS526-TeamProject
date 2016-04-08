@@ -37,6 +37,7 @@ a {
   margin:1%;
   float:left;
   padding:1%;
+  word-wrap: break-word;
 }
 .challengeDisplay{
   display:inline-table;
