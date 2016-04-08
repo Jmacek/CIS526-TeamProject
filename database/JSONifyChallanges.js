@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var numThreads = 0;
 //NOTE: The format i've been following goes as follows
 // Title, by Author
 //
@@ -30,11 +31,11 @@ walk('challenges', function(err, results) {
     if(err) throw err;
 
     var challenges = [];
-
-    results.forEach(function(file, index, array){
+    numThreads = results.length;
+    results.forEach(function(file){
         fs.readFile(file, "utf8", function(err, data){
             if (err) throw err;
-            readLines(data, challenges, index+1 === array.length);
+            readLines(data, challenges);
         });
     });
 });
@@ -45,27 +46,30 @@ function writeJSON(challenges){
     });
 }
 
-function readLines(data, challenges, done){
+function readLines(data, challenges){
     var challengeObject = {
         title : "",
         author : "",
         challenge : ""
     };
-    data = data.split("\n");
+    data = data.split(/\r?\n/);
     for(var i = 0; i < data.length; i++) {
         if(i == 0){
             var split = data[i].split(',');
             challengeObject.title = split[0];
             challengeObject.author = split[1].substring(4, split[1].length);
         }
-        else if(data[i] == ''){ //ignore blank lines, avoids having multiple spaces between words
-            continue;
-        }
-        else{
-            challengeObject.challenge += data[i] + " ";
+        else {
+            if (data[i] == '') { //ignore blank lines, avoids having multiple spaces between words
+                //do nothing
+            }
+            else {
+                challengeObject.challenge += data[i] + " ";
+            }
         }
         if(i+1 == data.length){
-            challenges = insertObject(challenges, challengeObject, done);
+            numThreads--;
+            challenges = insertObject(challenges, challengeObject, numThreads == 0);
         }
     }
 }

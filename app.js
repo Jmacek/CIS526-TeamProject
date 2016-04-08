@@ -15,8 +15,7 @@ var session = require('./routes/session');
 
 var app = express();
 
-var challenges = JSON.parse(fs.readFileSync('./database/challenges.json', 'utf8'));
-console.log(challenges);
+app.locals.challenges = JSON.parse(fs.readFileSync('./database/challenges.json', 'utf8'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
