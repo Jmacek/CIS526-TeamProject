@@ -3,6 +3,9 @@
  */
 var currentPlayer = 0;
 var opponent = 0;
+var count = 0;
+var counter; //needed for end of timer
+
 $(function(){
     var challenges = [];
     var wordAt = [];
@@ -42,7 +45,7 @@ $(function(){
         }
 
         function enableTextboxes() {
-            var s1 = document.getElementsByClassName("textBox_player1")
+            var s1 = document.getElementsByClassName("textBox_player1");
 
             for(var i = 0; i < s1.length;i++)
             {
@@ -51,7 +54,7 @@ $(function(){
                 s1[i].contentEditable = true;
             }
 
-            var s2 = document.getElementsByClassName("textBox_player2")
+            var s2 = document.getElementsByClassName("textBox_player2");
 
             for (var i = 0; i < s2.length; i++) {
                 s2[i].contentEditable = true;
@@ -103,12 +106,16 @@ $(function(){
     });
 
 
-    $('span').on("keyup",function(){
-        var boxID = this.className;
+    $('div').on("keyup",'span',function(e){
         var boxID = $(this).parent().attr('id');
+        var owner = boxID.split('-')[0];
         var boxValue = $('#'+boxID).html();
+        var player = $('body').data('whoami');
         console.log("boxId",boxID);
-        socket.emit('text_change',[boxID,boxValue]);
+        if(owner == player)
+            socket.emit('text_change',[boxID,boxValue]);
+        else
+            e.preventDefault()
     });
 
     socket.on('text_change', function(msg){
@@ -122,6 +129,10 @@ $(function(){
 
     socket.on('identify',function(){
         var userName = localStorage.username;
+
+        //if game had already started, force reload
+        if ($('body').data('whoami'))
+            window.location.reload();
         console.log("Setting self as: ", userName);
         $("body").data("playerName",userName);
         console.log("body.data('playerName') set as: ",$("body").data("playerName"));
@@ -160,22 +171,28 @@ $(function(){
         var player1 = players['player1'];
         var player2 = players['player2'];
 
+
         if(info.number == 1) {
-            $("body").data("whoami", "Player 1");
+            $("body").data("whoami", "player1");
+            //alert("I am player 1");
             document.getElementById("color").textContent = "red";
+
+            $('h2.player1').html('Me! (player 1)');
+            $('h2.player2').html(player2);
             currentPlayer = 1;
             opponent = 2;
         }
         else {
-            $("body").data("whoami", "Player 2");
+            $("body").data("whoami", "player2");
             document.getElementById("color").textContent = "blue";
+            $('h2.player1').html(player1+' (player 1)');
+            $('h2.player2').html('Me!');
             currentPlayer = 2;
             opponent = 1;
         }
+        count = info.time;
+        counter=setInterval(timer, 1000);
 
-
-        $('h2.player1')[0].html(player1);
-        $('h2.player2')[0].html(player2);
     });
 
     socket.on('match',function(m){
@@ -191,6 +208,14 @@ $(function(){
         updateChallenge(num);
     });
 
+    socket.on('game_over',function(msg){
+        document.getElementById("timer").innerHTML="Game Over!";
+        if (msg === 'forfeit')
+            var x = 4;
+            //do something special
+
+    });
+
     function PreformMatch(playerId,num,index)
     {
         wordIndex[num-1] = index;
@@ -204,9 +229,9 @@ $(function(){
 
     }
 
-    $('span.writing').on('keyup',function(){
+    $('div').on('keyup','span.writing',function(){
 
-        if(true)//gannons game logic
+        if(false)//gannons game logic
         {
             var toTest = $.trim($(this)[0].innerText);
             var l = $(this).attr('id').length;
@@ -234,8 +259,10 @@ $(function(){
             console.log("toTest = ", toTest);
             console.log("Actual = ", actual);
             var player = $(this).attr('id').split('-')[0];
+            var curPlayer = $('body').data('whoami');
+            var owner = $(this).parent().attr('id').split('-')[0];
             console.log(this);
-            if (toTest === actual) {
+            if (toTest === actual && curPlayer === owner) {
                 console.log("MATCH");
                 var atWord = wordAt[num - 1];
                 $('span', '#challenge-' + num)[atWord].className = player;
@@ -251,6 +278,21 @@ $(function(){
             }
         }
     });
+
+    //http://stackoverflow.com/questions/1191865/code-for-a-simple-javascript-countdown-timer
+    function timer()
+    {
+        count=count-1;
+        var current = document.getElementById("timer").innerHTML;
+        if (count <= 0 || current ==="Game Over!")
+        {
+            document.getElementById("timer").innerHTML="Time left: "+0 + " secs";
+            clearInterval(counter);
+            return;
+        }
+
+        document.getElementById("timer").innerHTML="Time left: "+count + " secs"; // watch for spelling
+    }
 
     function setSelectionRange(input, selectionStart, selectionEnd) {
         if (input.setSelectionRange) {

@@ -2,11 +2,13 @@
  * Created by Matt on 4/1/2016.
  */
 
-var gameIDArr = {};
-var gameArr = {};
+var gameIDArr = {}; //matches sockets to gameIDs
+var gameArr = {};//matches gameIDs to players tuple (socketID,playername) for both players and timeout object
 var waitQueue = [];
-var socketArr={};
-var playerArr = [];
+var socketArr={};//matches sockets to socketIDs
+var playerArr = [];//matches players to socketIDs
+
+var gameTime = 120;//length of game (in.. milliseconds?)
 
 //where a given socket
 function connect(socket) {
@@ -24,8 +26,12 @@ function connect(socket) {
         console.log(clientIP, " disconnected");
         //remove from socketArr
         if(socket.id in gameIDArr){
-            gameID = lookupGameID(socket);
+            var gameID = lookupGameID(socket.id);
+            var opponent = lookupOpponent(socket.id);
             delete gameIDArr[socket.id];
+            var gameTuple = lookupGame(gameID);
+            clearTimeout(gameTuple.timeout);
+            opponent.emit('game_over','forfeit');
             //TODO: if game in GameArr, then forefit
         }
         else{
@@ -76,9 +82,12 @@ function connect(socket) {
         var boxID = msg[0];
         var text = msg[1];
         //console.log(boxID, 'changed to:', text);
+        //console.log("recieved change from socket " + socket.id);
         var opponent = lookupOpponent(socket.id);
-        if(opponent !== null)
+        if (opponent !== null) {
+            //console.log("Sending change to "+opponent.id);
             opponent.emit('text_change', msg);
+        }
         //io.emit('text_change', msg);8
     });
 
@@ -86,23 +95,40 @@ function connect(socket) {
 }
 //socket is the client socket that we are sending the update to
 //players is the object {Player1:"name1",Player2:"name2"} identifying
-
+function sendGameOver(gameID,msg){
+    console.log("sending gameOver");
+    var gameTuple = lookupGame(gameID);
+    S1 = lookupSocket(gameTuple.player1.socketID);
+    S2 = lookupSocket(gameTuple.player2.socketID);
+    S1.emit('game_over',msg);
+    S2.emit('game_over',msg);
+}
 
 function createGame(player1,player2){
     var challenges = [];
+
     challenges[0] = "This is challenge 1";
     challenges[1] = "This is challenge 2";
     challenges[2] = "This will be challenge 3";
 
-    var gameID = "set via databaseID probably";
+    var gameID;
+    do{
+        gameID = randomInt(0,10000);
+    }while(gameID in gameArr);
+
     gameIDArr[player1.socketID] = gameID;
     gameIDArr[player2.socketID] = gameID;
 
-    var gameTuple = {player1:player1,player2:player2};
+    console.log("player1 socketID = "+player1.socketID);
+    console.log("player2 socketID = "+player2.socketID);
+
+    var timeoutObj = setTimeout(sendGameOver,gameTime*1000,gameID);
+    var gameTuple = {player1:player1,player2:player2,timeout:timeoutObj};
 
     gameArr[gameID]=gameTuple;
+
     var matchup = {player1:player1.playerName,player2:player2.playerName};
-    sendMatchup(gameTuple,matchup);
+    sendMatchup(gameTuple,matchup,gameTime);
     sendChallenges(gameTuple,challenges)
 }
 
@@ -126,7 +152,7 @@ function lookupGameID(socketID){
     if(socketID in gameIDArr)
         return gameIDArr[socketID];
     else
-        console.log("SocketID not in gameIDArr!");
+        console.log("SocketID not in gameIDArr!"+ JSON.stringify(gameIDArr));
     return null
 }
 
@@ -152,12 +178,13 @@ function lookupOpponent(socketID){
 
 //Sends the matchup for the game to the players in the form of:
 //{player1:"name",player2:"name"}
-function sendMatchup(gameTuple,matchup){
+function sendMatchup(gameTuple,matchup,time){
     S1 = lookupSocket(gameTuple.player1.socketID);
     S2 = lookupSocket(gameTuple.player2.socketID);
     console.log("Setting players: ",matchup);
-    S1.emit('match_set',{players:matchup,number:2});
-    S2.emit('match_set',{players:matchup,number:1});//reversed the 2 and 1 somewhere
+    S1.emit('match_set',{players:matchup,number:1,time:time});
+    //console.log("Socket ID "+S1.id+" is set as first player");
+    S2.emit('match_set',{players:matchup,number:2,time:time});//reversed the 2 and 1 somewhere
 }
 
 function sendChallenges(gameTuple,challenges){
@@ -165,6 +192,10 @@ function sendChallenges(gameTuple,challenges){
     S2 = lookupSocket(gameTuple.player2.socketID);
     S1.emit('challenge_set',challenges);
     S2.emit('challenge_set',challenges);
+}
+
+function randomInt (low, high) {
+    return Math.floor(Math.random() * (high - low) + low);
 }
 
 module.exports = exports = connect;
