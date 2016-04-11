@@ -47,6 +47,13 @@ function connect(socket) {
             opponent.emit('match', m);
     });
 
+    socket.on('catch',function()
+    {
+        var opponent = lookupOpponent(socket.id);
+        if(opponent !== null)
+            opponent.emit('catch');
+    });
+
     socket.on('identity',function(playerName){
         //TODO: form reset upon connect
         socketArr[socket.id]=socket;
@@ -94,7 +101,6 @@ function createGame(player1,player2){
     var gameTuple = {player1:player1,player2:player2};
 
     gameArr[gameID]=gameTuple;
-
     var matchup = {player1:player1.playerName,player2:player2.playerName};
     sendMatchup(gameTuple,matchup);
     sendChallenges(gameTuple,challenges)
@@ -150,8 +156,8 @@ function sendMatchup(gameTuple,matchup){
     S1 = lookupSocket(gameTuple.player1.socketID);
     S2 = lookupSocket(gameTuple.player2.socketID);
     console.log("Setting players: ",matchup);
-    S1.emit('match_set',matchup);
-    S2.emit('match_set',matchup);
+    S1.emit('match_set',{players:matchup,number:2});
+    S2.emit('match_set',{players:matchup,number:1});//reversed the 2 and 1 somewhere
 }
 
 function sendChallenges(gameTuple,challenges){

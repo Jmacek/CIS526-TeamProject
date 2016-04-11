@@ -1,16 +1,113 @@
 /**
  * Created by Matt on 3/31/2016.
  */
+var currentPlayer = 0;
+var opponent = 0;
 $(function(){
     var challenges = [];
     var wordAt = [];
     var socket = io();
+    var challengeWords = [];
+    var wordIndex = [];
+
+
+    $('#catch').on("click",function()
+    {
+        socket.emit('catch');
+    });
+    socket.on('catch',function(){
+        var curElement = document.activeElement;
+        if(curElement.id.indexOf("player"+opponent) !== -1){
+            ServePenalty(5);
+        }
+    });
+
+
+    {//serve penalty stuff
+
+        function disableTextboxes() {
+
+            var s1 = document.getElementsByClassName("textBox_player1");
+                console.log("s1",s1);
+                for(var i = 0; i < s1.length;i++)
+                {
+                    s1[i].contentEditable = false;
+                }
+
+            var s2 = document.getElementsByClassName("textBox_player2");
+                console.log("s2",s2);
+                for (var i = 0; i < s2.length; i++) {
+                    s2[i].contentEditable = false;
+                }
+        }
+
+        function enableTextboxes() {
+            var s1 = document.getElementsByClassName("textBox_player1")
+
+            for(var i = 0; i < s1.length;i++)
+            {
+                console.log("id",s1[i].id);
+                //looks stupid but works.
+                s1[i].contentEditable = true;
+            }
+
+            var s2 = document.getElementsByClassName("textBox_player2")
+
+            for (var i = 0; i < s2.length; i++) {
+                s2[i].contentEditable = true;
+            }
+        }
+
+        function showTimeout(time) {
+            if (time != 0) {
+                document.getElementById("time-out").textContent = "You got caught! Time-in in: " + time;
+            }
+            else {
+                document.getElementById("time-out").textContent = "Time In";
+            }
+        }
+
+        function ServePenalty(time) {
+            disableTextboxes();
+            showTimeout(time);
+
+            setTimeout(function () {
+                    enableTextboxes();
+                }
+                , time * 1000);
+
+            var functArr = [];
+            for (var i = 0; i <= time; i++) {
+                functArr.push({
+                    funct: function (time, totalTime) {
+                        setTimeout(function () {
+                                showTimeout(totalTime - time)
+                            }
+                            , time * 1000)
+                    }
+
+                    , time: i
+                });
+            }
+
+            for (var i = 0; i < functArr.length; i++) {
+                var thing = functArr[i];
+                thing.funct(thing.time, time);
+            }
+        }
+    }//servePenalty stuff
+
+    $(document).on("keyup",function(){
+        //console.log("this works");
+        //console.log("challengeWords",challengeWords);
+    });
+
 
     $('span').on("keyup",function(){
         var boxID = this.className;
         var boxID = $(this).parent().attr('id');
         var boxValue = $('#'+boxID).html();
-        console.log(boxID);
+        console.log("boxId",boxID);
         socket.emit('text_change',[boxID,boxValue]);
     });
 
@@ -35,6 +132,8 @@ $(function(){
         console.log("setting challenges...");
         var num = orig_challenges.length;
         for(var i = 1;i<num+1;i++){
+            challengeWords[i-1] = orig_challenges[i-1].split(' ');
+            wordIndex[i-1] = 0;
             words = orig_challenges[i-1].split(' ');
             var toReplace = [];
             $.each(words,function(index,value){
@@ -56,13 +155,24 @@ $(function(){
 
     }
 
-    socket.on('set_matchup',function(players){
+    socket.on('match_set',function(info){
+        var players = info.players;
         var player1 = players['player1'];
         var player2 = players['player2'];
-        if($("body").data("playerName") == player1)
-            $("body").data("whoami","Player 1");
-        else
-            $("body").data("whoami","Player 2");
+
+        if(info.number == 1) {
+            $("body").data("whoami", "Player 1");
+            document.getElementById("color").textContent = "red";
+            currentPlayer = 1;
+            opponent = 2;
+        }
+        else {
+            $("body").data("whoami", "Player 2");
+            document.getElementById("color").textContent = "blue";
+            currentPlayer = 2;
+            opponent = 1;
+        }
+
 
         $('h2.player1')[0].html(player1);
         $('h2.player2')[0].html(player2);
@@ -81,29 +191,64 @@ $(function(){
         updateChallenge(num);
     });
 
+    function PreformMatch(playerId,num,index)
+    {
+        wordIndex[num-1] = index;
+        $('span', '#challenge-' + num)[wordIndex[num-1]].className = playerId;
+        if(challengeWords[num-1][index+1] !== undefined)
+        {
+            wordIndex[num-1]++;
+            $('span', '#challenge-' + num)[wordIndex[num-1]].className = "active";
+            //document.getElementById("challenge-"+num)[wordIndex[num-1]].className = "active";
+        }
+
+    }
+
     $('span.writing').on('keyup',function(){
 
-        var toTest = $.trim($(this)[0].innerText);
-        var l = $(this).attr('id').length;
-        var num = $(this).attr('id')[l-1];
-        var actual = $('.active','#challenge-'+num)[0].innerHTML;
-        console.log("toTest = ", toTest);
-        console.log("Actual = ", actual);
-        var player = $(this).attr('id').split('-')[0];
-        console.log(this);
-        if(toTest === actual){
-            console.log("MATCH");
-            var atWord = wordAt[num-1];
-            $('span','#challenge-'+num)[atWord].className = player;
-            socket.emit('match',[num,atWord,player]);
-            console.log(wordAt);
-            wordAt[num-1] = wordAt[num-1] + 1;
-            console.log(wordAt);
-            $('span[id*="-w'+num+'"]').before("<span class='completed-"+player+"'>"+actual+" </span>");
-            $('span[id*="-w'+num+'"]').html('&nbsp');
-            var span = $('#'+player+'-w'+num)[0];
-            updateChallenge(num);
-            setCaretToPos(span,0,0);
+        if(true)//gannons game logic
+        {
+            var toTest = $.trim($(this)[0].innerText);
+            var l = $(this).attr('id').length;
+            var num = $(this).attr('id')[l - 1];
+            var player = $(this).attr('id').split('-')[0];
+            var word = challengeWords[num-1][wordIndex[num-1]];
+            console.log("index",toTest.indexOf(word));
+            if(toTest.indexOf(word) != -1)
+            {
+                PreformMatch(player,num,wordIndex[num-1])
+                console.log("MATCH")
+            }
+
+
+            console.log("toTest",toTest);
+            console.log("num",num);
+            console.log("player",player);
+            console.log("word",word);
+        }
+        else {
+            var toTest = $.trim($(this)[0].innerText);
+            var l = $(this).attr('id').length;
+            var num = $(this).attr('id')[l - 1];
+            var actual = $('.active', '#challenge-' + num)[0].innerHTML;
+            console.log("toTest = ", toTest);
+            console.log("Actual = ", actual);
+            var player = $(this).attr('id').split('-')[0];
+            console.log(this);
+            if (toTest === actual) {
+                console.log("MATCH");
+                var atWord = wordAt[num - 1];
+                $('span', '#challenge-' + num)[atWord].className = player;
+                socket.emit('match', [num, atWord, player]);
+                console.log(wordAt);
+                wordAt[num - 1] = wordAt[num - 1] + 1;
+                console.log(wordAt);
+                $('span[id*="-w' + num + '"]').before("<span class='completed-" + player + "'>" + actual + " </span>");
+                $('span[id*="-w' + num + '"]').html('&nbsp');
+                var span = $('#' + player + '-w' + num)[0];
+                updateChallenge(num);
+                setCaretToPos(span, 0, 0);
+            }
         }
     });
 
