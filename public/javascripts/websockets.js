@@ -7,11 +7,8 @@ var count = 0;
 var counter; //needed for end of timer
 
 $(function(){
-    var challenges = [];
-    var wordAt = [];
     var socket = io();
-    var challengeWords = [];
-    var wordIndex = [];
+    var superList = [];
 
 
     $('#catch').on("click",function()
@@ -25,6 +22,65 @@ $(function(){
         }
     });
 
+    function setScore() {
+        var p1Score = 0;
+        var p2Score = 0;
+        for(var i = 0; i < superList.length; i++)
+        {
+            for(var j = 0; j < superList[i].length; j++)
+            {
+                if(superList[i][j].attribute == 'player1')
+                {
+                    p1Score+=superList[i][j].word.length;
+                }
+                else if(superList[i][j].attribute == 'player2')
+                {
+                    p2Score+=superList[i][j].word.length;
+                }
+            }
+        }
+
+        document.getElementById('player1_score').textContent = p1Score;
+        document.getElementById('player2_score').textContent = p2Score;
+    }//updates the score with the superList
+
+    {//initialize the super list
+        function setChallenge(orig_challenges) {
+            var num = orig_challenges.length;
+            //crates a list we can use and update
+            for (var i = 0; i < num; i++) {
+                //will contain word and attribute like "hidden", "Player1" ect.
+                var listOfWordObjects = [];
+                var tempWordList = orig_challenges[i].split(' ');
+                for (var j = 0; j < tempWordList.length; j++) {
+                    //set the fist one to active
+                    if (j == 0) {
+                        listOfWordObjects[j] = {word: tempWordList[j], attribute: "active"}
+                    }
+                    else {
+                        listOfWordObjects[j] = {word: tempWordList[j], attribute: "hidden"}
+                    }
+                }
+                superList[i] = listOfWordObjects;
+            }
+
+            //makes the challenge boxes update
+            UpdateChallengeBoxes();
+
+        } //intializes superlist.
+
+        function UpdateChallengeBoxes() {
+            for (var i = 0; i < superList.length; i++) {
+                var toReplace = [];
+                for (var j = 0; j < superList[i].length; j++) {
+                    toReplace [j] = "<span class='" + superList[i][j].attribute + "'>" + superList[i][j].word + "</span>";
+                }
+                var num = i + 1
+                $('#challenge-' + num).html(toReplace.join(' '));
+
+            }
+        } //uses super list to update the challenge boxes.
+    }//initialize the super list
 
     {//serve penalty stuff
 
@@ -100,32 +156,82 @@ $(function(){
         }
     }//servePenalty stuff
 
+    function replaceAt(string,index,char)
+    {
+        var out = "";
+        for(var i = 0; i < string.length; i++)
+        {
+            if(i != index)
+            {
+                out+=string[i];
+            }
+            else
+            {
+                out+=char;
+            }
+        }
+        return out;
+    }
+
+    function findOpositeElement(curElement)
+    {
+
+        var elms = curElement.split("-");
+
+        if(elms[0][elms[0].length-1] == '1'){
+            elms[0] = replaceAt(elms[0],elms[0].length-1,"2");
+            var v =  elms[0]+"-"+elms[1];
+            return v;
+        }
+        else if(elms[0][elms[0].length-1] == '2')
+        {
+            elms[0] = replaceAt(elms[0],elms[0].length-1,"1");
+            var v =  elms[0]+"-"+elms[1];
+            console.log(v);
+            return v;
+        }
+    }
+
+    function PreformMatch(playerId,num,index)//marked
+    {
+        wordIndex[num-1] = index;
+        $('span', '#challenge-' + num)[wordIndex[num-1]].className = playerId;
+        if(challengeWords[num-1][index+1] !== undefined)
+        {
+            wordIndex[num-1]++;
+            $('span', '#challenge-' + num)[wordIndex[num-1]].className = "active";
+            //document.getElementById("challenge-"+num)[wordIndex[num-1]].className = "active";
+        }
+
+    }
+
     $(document).on("keyup",function(){
-        //console.log("this works");
-        //console.log("challengeWords",challengeWords);
+        var curElement = document.activeElement;
+        //why wont contains work? I have to do this every time to get this to make sense,
+        // aslo why does class name not return just the class name.
+        //checks to make sure the keypress is in a player box otherwize it will cause errors
+        if(curElement.className.toString().indexOf("textBox_player1") != -1 || curElement.className.toString().indexOf("textBox_player2") != -1)
+        //tell the server that the text was updated
+            var opositeId = findOpositeElement(curElement.id);
+
+        var opositeText = document.getElementById(opositeId).textContent;
+        var m = {first:{id:curElement.id,text:curElement.textContent},
+            second:{id:opositeId,text:opositeText}};//check their stuff
+        socket.emit('new_text',m);//check current box
+
     });
 
+    socket.on('new_text',function(m){
+        var curElement = document.getElementById(m.id);
+        curElement.textContent = m.text;
+    });//handles changed text
 
-    $('div').on("keyup",'span',function(e){
-        var boxID = $(this).parent().attr('id');
-        var owner = boxID.split('-')[0];
-        var boxValue = $('#'+boxID).html();
-        var player = $('body').data('whoami');
-        console.log("boxId",boxID);
-        if(owner == player)
-            socket.emit('text_change',[boxID,boxValue]);
-        else
-            e.preventDefault()
-    });
+    socket.on('score',function(m){
 
-    socket.on('text_change', function(msg){
-        var id = msg[0];
-        var text = msg[1];
-        console.log('Recipient = ' + id);
-        console.log('    Text: ' + text);
-        $('#'+id).html(text);
-        cursorManager.setEndOfContenteditable($('#'+id)[0]);
-    });
+        superList = m;
+        UpdateChallengeBoxes();
+        setScore();
+    });//handles the up dated superList from the server
 
     socket.on('identify',function(){
         var userName = localStorage.username;
@@ -140,31 +246,9 @@ $(function(){
     });
 
     socket.on('challenge_set',function(orig_challenges){
-        console.log("setting challenges...");
-        var num = orig_challenges.length;
-        for(var i = 1;i<num+1;i++){
-            challengeWords[i-1] = orig_challenges[i-1].split(' ');
-            wordIndex[i-1] = 0;
-            words = orig_challenges[i-1].split(' ');
-            var toReplace = [];
-            $.each(words,function(index,value){
-                toReplace [index] = "<span class='hidden'>"+value+"</span>";
-            });
-            challenges[i-1] = orig_challenges[i-1];
-            wordAt[i-1] = 0;
-            $('#challenge-'+i).html(toReplace.join(' '));
-            updateChallenge(i)
-        }
+        setChallenge(orig_challenges);
+
     });
-
-    function updateChallenge(x){
-        var atWord = wordAt[x-1];
-        console.log(atWord);
-        $('span','#challenge-'+x)[atWord].className = 'active';
-        // current-x
-        // challenge-x
-
-    }
 
     socket.on('match_set',function(info){
         var players = info.players;
@@ -195,88 +279,12 @@ $(function(){
 
     });
 
-    socket.on('match',function(m){
-        var num = m[0];
-        var atWord = m[1];
-        var player = m[2];
-        wordAt[num-1] = wordAt[num-1] + 1;
-        var actual = $('.active','#challenge-'+num)[0].innerHTML;
-        $('span','#challenge-'+num)[atWord].className = player;
-        $('span[id*="-w'+num+'"]').before("<span class='completed-"+player+"'>"+actual+" </span>");
-        $('span[id*="-w'+num+'"]').html('&nbsp');
-        var span = $('#'+player+'-w'+num)[0];
-        updateChallenge(num);
-    });
-
     socket.on('game_over',function(msg){
         document.getElementById("timer").innerHTML="Game Over!";
         if (msg === 'forfeit')
             var x = 4;
             //do something special
 
-    });
-
-    function PreformMatch(playerId,num,index)
-    {
-        wordIndex[num-1] = index;
-        $('span', '#challenge-' + num)[wordIndex[num-1]].className = playerId;
-        if(challengeWords[num-1][index+1] !== undefined)
-        {
-            wordIndex[num-1]++;
-            $('span', '#challenge-' + num)[wordIndex[num-1]].className = "active";
-            //document.getElementById("challenge-"+num)[wordIndex[num-1]].className = "active";
-        }
-
-    }
-
-    $('div').on('keyup','span.writing',function(){
-
-        if(false)//gannons game logic
-        {
-            var toTest = $.trim($(this)[0].innerText);
-            var l = $(this).attr('id').length;
-            var num = $(this).attr('id')[l - 1];
-            var player = $(this).attr('id').split('-')[0];
-            var word = challengeWords[num-1][wordIndex[num-1]];
-            console.log("index",toTest.indexOf(word));
-            if(toTest.indexOf(word) != -1)
-            {
-                PreformMatch(player,num,wordIndex[num-1])
-                console.log("MATCH")
-            }
-
-
-            console.log("toTest",toTest);
-            console.log("num",num);
-            console.log("player",player);
-            console.log("word",word);
-        }
-        else {
-            var toTest = $.trim($(this)[0].innerText);
-            var l = $(this).attr('id').length;
-            var num = $(this).attr('id')[l - 1];
-            var actual = $('.active', '#challenge-' + num)[0].innerHTML;
-            console.log("toTest = ", toTest);
-            console.log("Actual = ", actual);
-            var player = $(this).attr('id').split('-')[0];
-            var curPlayer = $('body').data('whoami');
-            var owner = $(this).parent().attr('id').split('-')[0];
-            console.log(this);
-            if (toTest === actual && curPlayer === owner) {
-                console.log("MATCH");
-                var atWord = wordAt[num - 1];
-                $('span', '#challenge-' + num)[atWord].className = player;
-                socket.emit('match', [num, atWord, player]);
-                console.log(wordAt);
-                wordAt[num - 1] = wordAt[num - 1] + 1;
-                console.log(wordAt);
-                $('span[id*="-w' + num + '"]').before("<span class='completed-" + player + "'>" + actual + " </span>");
-                $('span[id*="-w' + num + '"]').html('&nbsp');
-                var span = $('#' + player + '-w' + num)[0];
-                updateChallenge(num);
-                setCaretToPos(span, 0, 0);
-            }
-        }
     });
 
     //http://stackoverflow.com/questions/1191865/code-for-a-simple-javascript-countdown-timer
@@ -310,9 +318,7 @@ $(function(){
         }
     }
 
-    function setCaretToPos (input, pos) {
-        setSelectionRange(input, pos, pos);
-    }
+
 
 //Namespace management idea from http://enterprisejquery.com/2010/10/how-good-c-habits-can-encourage-bad-javascript-habits-part-1/
     (function( cursorManager ) {
