@@ -7,22 +7,43 @@ var count = 0;
 var counter; //needed for end of timer
 
 $(function(){
+    var playerId
     var socket = io();
     var superList = [];
 
     //use this for later
     $('.textBox_player1').focusin(function(){console.log("succuess");});
+    document.ondblclick = function(){
+
+        var curElement = document.activeElement;
+        if(curElement.id.split("-")[0] == playerId) {
+            console.log("about to send catch")
+            socket.emit('catch', curElement.id);
+        }
+    }
+    //$('.textBox_player1').on("click",function(){console.log("succuess");});
+    //$('#player1_box1').on("click",function(){console.log("succuess");});
 
     $('#catch').on("click",function()
     {
         socket.emit('catch');
     });
-    socket.on('catch',function(){
+
+    socket.on('catch',function(m){
+        console.log("in catch",m);
         var curElement = document.activeElement;
-        if(curElement.id.indexOf("player"+opponent) !== -1){
+        if(curElement.id == m){
             ServePenalty(15);
         }
     });
+
+    //socket.on('catch',function(){
+    //
+    //    var curElement = document.activeElement;
+    //    if(curElement.id.indexOf("player"+opponent) !== -1){
+    //        ServePenalty(15);
+    //    }
+    //});
 
     function setScore() {
         var p1Score = 0;
@@ -255,9 +276,8 @@ $(function(){
 
         if(info.number == 1) {
             $("body").data("whoami", "player1");
-            //alert("I am player 1");
+            playerId = "player1";
             document.getElementById("color").textContent = "red";
-
             $('h2.player1').html('Me! (player 1)');
             $('h2.player2').html(player2);
             currentPlayer = 1;
@@ -265,6 +285,7 @@ $(function(){
         }
         else {
             $("body").data("whoami", "player2");
+            playerId = "player2";
             document.getElementById("color").textContent = "blue";
             $('h2.player1').html(player1+' (player 1)');
             $('h2.player2').html('Me!');

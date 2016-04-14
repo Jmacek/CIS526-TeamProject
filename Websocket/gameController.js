@@ -96,10 +96,10 @@ function connect(socket) {
         delete playerArr[socket.id];
     });
 
-    socket.on('catch',function() {
+    socket.on('catch',function(m) {
         var opponent = lookupOpponent(socket.id);
         if(opponent !== null)
-            opponent.emit('catch');
+            opponent.emit('catch',m);
     });
 
     socket.on('identity',function(playerName){
