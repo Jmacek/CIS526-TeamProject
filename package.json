@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "install": "node ./database/seed.js",
+    "jsonify": "node ./database/JSONifyChallanges.js",
     "start": "node ./bin/www"
   },
   "dependencies": {

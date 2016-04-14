@@ -20,6 +20,7 @@ function connect(socket) {
     var clientIP = this.connected[id].client.conn.remoteAddress;
     console.log("(IPv6) ", clientIP, "connected");
 
+
     function GoThroughSuperlist(id,text,superList,socketID) {
         var num = id[id.length - 1]-1;//last char is the num
         var player = id.split("-")[0];
@@ -33,6 +34,10 @@ function connect(socket) {
             if(superList[num][i].attribute != 'hidden') {//dont want to check for a hidden value
                 for (var j = 0; j < currWords.length; j++) {
                     if (superList[num][i].attribute == 'active' && currWords[j].trim() == superList[num][i].word) {
+                        //flash
+                        console.log(id.split("-")[1]);
+                        var otherPlayersocket = lookupOpponent(id.split("-")[1]);
+                        otherPlayersocket.emit("flash");
                         superList[num][i].attribute = player;
                         found = true;
                         numActive--; //this active element was in the text box
