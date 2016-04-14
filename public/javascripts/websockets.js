@@ -236,6 +236,12 @@ $(function(){
 
     }
 
+    $('*',"[class*= 'challengeBox']").on('selectstart',function(e){
+        //console.log('selecting');
+        e.preventDefault();
+        return false;
+    });
+
     $(document).on("keyup",function(){
         var curElement = document.activeElement;
         //why wont contains work? I have to do this every time to get this to make sense,
@@ -287,7 +293,7 @@ $(function(){
             $("body").data("whoami", "player1");
             playerId = "player1";
             document.getElementById("color").textContent = "red";
-            $('h2.player1').html('Me! (player 1)');
+            $('h2.player1').html('Me!');
             $('h2.player2').html(player2);
             currentPlayer = 1;
             opponent = 2;
@@ -296,7 +302,7 @@ $(function(){
             $("body").data("whoami", "player2");
             playerId = "player2";
             document.getElementById("color").textContent = "blue";
-            $('h2.player1').html(player1+' (player 1)');
+            $('h2.player1').html(player1+'');
             $('h2.player2').html('Me!');
             currentPlayer = 2;
             opponent = 1;
@@ -308,6 +314,19 @@ $(function(){
 
     socket.on('game_over',function(msg){
         document.getElementById("timer").innerHTML="Game Over!";
+        var score1 = $('#player1_score').text();
+        var score2 = $('#player2_score').text();
+        var winner;
+        if (score1>score2)
+            winner = 'Player 1';
+        else if (score1<score2)
+            winner = 'Player 2';
+        else
+            winner = 'Tie';
+
+        $('#gameOverScreen div h4:nth-of-type(1)').text('Player 1: '+score1);
+        $('#gameOverScreen div h4:nth-of-type(2)').text('Player 2: '+score2);
+        $('#gameOverScreen div h3:nth-of-type(1)').text('Winner: '+winner);
         $('#gameOverScreen').attr('class','fullscreen');
         if (msg === 'forfeit')
             var x = 4;

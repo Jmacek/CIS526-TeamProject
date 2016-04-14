@@ -8,7 +8,7 @@ var waitQueue = [];
 var socketArr={};//matches sockets to socketIDs
 var playerArr = [];//matches players to socketIDs
 var UltraList = [];//list of all challnge words in all games.
-var gameTime = 15;//length of game (in seconds)
+var gameTime = 120;//length of game (in seconds)
 
 //where a given socket
 function connect(socket) {
