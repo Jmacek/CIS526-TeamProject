@@ -3,6 +3,40 @@ body {
   background: url("../images/asanoha-400px.png");
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
+
+[class*= 'challengeBox'] *,#player1-box1{
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+
+  /*
+    Introduced in IE 10.
+    See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+  */
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.fullscreen{
+  width: 100%;
+  left: 0;
+  position: absolute;
+  text-align: center;
+  background: url("../images/asanoha-400px.png");
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  z-index:1000;
+}
+
+#loadScreen > div{
+  margin-top:20%;
+  margin-bottom:60%;
+}
+
+#gameOverScreen > div{
+  margin-top:15%;
+  margin-bottom: 60%;
+}
+
 h1 {
   text-align: center;
 }
