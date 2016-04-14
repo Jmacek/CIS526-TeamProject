@@ -7,6 +7,10 @@
 var app = require('../app');
 var debug = require('debug')('Webapp:server');
 var http = require('http');
+var https = require('https');
+var fs = require('fs');
+var encryption = require('../authentication/encryption');
+var server,serverType;
 
 /**
  * Get port from environment and store in Express.
@@ -15,26 +19,50 @@ var http = require('http');
 var port = normalizePort(process.env.PORT || '8081');
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
-
-var server = http.createServer(app);
-
-
-//The websocket io
-var io = require('socket.io').listen(server);//(server);
-var webSocket = require('../Websocket/gameController.js');
-
-io.on('connection', webSocket);
 
 /**
- * Listen on provided port, on all network interfaces.
+ * Create HTTP or HTTPS server.
  */
+fs.access('authentication/server.crt', fs.F_OK, function(err){
+  if(err) {
+    //no server certificate, use http
+    serverType = 'http';
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+    server = http.createServer(app);
+  }
+  else{
+    //server certificate, use https
+    serverType = 'https';
+    var options = {
+      key: encryption.servePrivKey(),
+      cert: fs.readFileSync('authentication/server.crt'),
+      requestCert:false,
+      rejectUnauthorized:false
+    };
+
+    server = https.createServer(options,app);
+  }
+  startServer()
+});
+
+function startServer(){
+  //The websocket io
+  var io = require('socket.io').listen(server);//(server);
+  var webSocket = require('../Websocket/gameController.js');
+
+  io.on('connection', webSocket);
+
+  /**
+   * Listen on provided port, on all network interfaces.
+   */
+
+  server.listen(port, function(){
+    console.log(serverType+" server started at port "+port);
+  });
+  server.on('error', onError);
+  server.on('listening', onListening);
+}
+
 
 /**
  * Normalize a port into a number, string, or false.
