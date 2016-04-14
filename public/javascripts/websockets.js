@@ -230,6 +230,10 @@ $(function(){
 
     }
 
+    socket.on('flash',function(num){
+
+    });
+
     $(document).on("keyup",function(){
         var curElement = document.activeElement;
         //why wont contains work? I have to do this every time to get this to make sense,

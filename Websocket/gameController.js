@@ -20,11 +20,12 @@ function connect(socket) {
     var clientIP = this.connected[id].client.conn.remoteAddress;
     console.log("(IPv6) ", clientIP, "connected");
 
-    function GoThroughSuperlist(id,text,superList) {
+    function GoThroughSuperlist(id,text,superList,socketID) {
         var num = id[id.length - 1]-1;//last char is the num
         var player = id.split("-")[0];
         var currWords = text.split(" ");
         var numActive = 0; // this number is the number of active words. it must be zero by the end of the nested loop
+        var opponent = lookupOpponent(socketID);
         // or the next word will not be revealed
         for(var i = 0; i < superList[num].length; i++) {
             if(superList[num][i].attribute == 'active'){numActive++;}//there was an active element
@@ -35,10 +36,12 @@ function connect(socket) {
                         superList[num][i].attribute = player;
                         found = true;
                         numActive--; //this active element was in the text box
+                        opponent.emit('flash',num);
                         break;//no need to search anymore the word was found
                     }
                     else if (superList[num][i].attribute == player && currWords[j].trim() == superList[num][i].word) {
                         found = true;//super word does exist in the text box
+                        opponent.emit('flash',num);
                         break;//no need to search anymore the word was found
                     }
                 }
@@ -60,8 +63,8 @@ function connect(socket) {
 
         var gameID = lookupGameID(socket.id);//gets the gameid
         var opponent = lookupOpponent(socket.id);
-        var s = GoThroughSuperlist(m.first.id, m.first.text, UltraList[gameID]);//updates the super list
-        s = GoThroughSuperlist(m.second.id, m.second.text, UltraList[gameID]);//updates it for the other guy
+        var s = GoThroughSuperlist(m.first.id, m.first.text, UltraList[gameID],socket.id);//updates the super list
+        s = GoThroughSuperlist(m.second.id, m.second.text, UltraList[gameID],socket.id);//updates it for the other guy
         socket.emit('score', s);
         opponent.emit('score', s);
 
