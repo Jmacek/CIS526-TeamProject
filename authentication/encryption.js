@@ -116,6 +116,25 @@ function getPrivate() {
 
     return privKey;
 }
+
+function getPrivatePEM() {
+
+    //read the encrypted key
+    var privKeySave = fs.readFileSync(privFile,keyStoreType);
+
+    //decipher and store the private key
+    tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
+    var privKeyPEM = tinyDecipher.update(privKeySave,keyStoreType,asymPEMKeyType);
+    privKeyPEM += tinyDecipher.final(asymPEMKeyType);
+
+    /*
+    Uncomment this line to print your server's private key.
+    Used for generating https certificate
+     */
+    //console.log(privKeyPEM);
+
+    return privKeyPEM;
+}
 /*
 function loadKeys(){
 
@@ -147,6 +166,10 @@ function loadKeys(){
 var Encryption = {
     servePublicKey:function(){
         return getPublicPem();
+    },
+
+    servePrivKey:function(){
+        return getPrivatePEM()
     },
 
     serveSymmKey:function(){
