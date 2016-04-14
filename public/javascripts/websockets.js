@@ -221,6 +221,7 @@ $(function(){
     {
         wordIndex[num-1] = index;
         $('span', '#challenge-' + num)[wordIndex[num-1]].className = playerId;
+        console.log(playerId);
         if(challengeWords[num-1][index+1] !== undefined)
         {
             wordIndex[num-1]++;
@@ -229,6 +230,10 @@ $(function(){
         }
 
     }
+
+    socket.on("flash", function(){
+
+    });
 
     $(document).on("keyup",function(){
         var curElement = document.activeElement;

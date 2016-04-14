@@ -20,7 +20,7 @@ function connect(socket) {
     var clientIP = this.connected[id].client.conn.remoteAddress;
     console.log("(IPv6) ", clientIP, "connected");
 
-    function GoThroughSuperlist(id,text,superList) {
+    function GoThroughSuperlist(id,text,superList, socketId) {
         var num = id[id.length - 1]-1;//last char is the num
         var player = id.split("-")[0];
         var currWords = text.split(" ");
@@ -32,6 +32,10 @@ function connect(socket) {
             if(superList[num][i].attribute != 'hidden') {//dont want to check for a hidden value
                 for (var j = 0; j < currWords.length; j++) {
                     if (superList[num][i].attribute == 'active' && currWords[j].trim() == superList[num][i].word) {
+                        //flash
+                        console.log(id.split("-")[1]);
+                        var otherPlayersocket = lookupOpponent(id.split("-")[1]);
+                        otherPlayersocket.emit("flash");
                         superList[num][i].attribute = player;
                         found = true;
                         numActive--; //this active element was in the text box
@@ -60,8 +64,8 @@ function connect(socket) {
 
         var gameID = lookupGameID(socket.id);//gets the gameid
         var opponent = lookupOpponent(socket.id);
-        var s = GoThroughSuperlist(m.first.id, m.first.text, UltraList[gameID]);//updates the super list
-        s = GoThroughSuperlist(m.second.id, m.second.text, UltraList[gameID]);//updates it for the other guy
+        var s = GoThroughSuperlist(m.first.id, m.first.text, UltraList[gameID], socket.id);//updates the super list
+        s = GoThroughSuperlist(m.second.id, m.second.text, UltraList[gameID], socket.id);//updates it for the other guy
         socket.emit('score', s);
         opponent.emit('score', s);
 
