@@ -1,5 +1,6 @@
 body {
   padding: 50px;
+  background: url("../images/asanoha-400px.png");
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 h1 {
@@ -10,6 +11,9 @@ h2 {
 }
 a {
   color: #00B7FF;
+}
+.catch-div {
+  text-align: center;
 }
 /* centered columns styles */
 .row-centered {
