@@ -35,7 +35,6 @@ function connect(socket) {
             var found = false;//assume the super word does not exist in the text box
             if(superList[num][i].attribute != 'hidden') {//don't want to check for a hidden value
                 for (var j = 0; j < currWords.length; j++) {
-                    console.log(used[j]);
                     if(!used[j]) {
                         if (superList[num][i].attribute == 'active' && currWords[j].trim() == superList[num][i].word) {
                             superList[num][i].attribute = player;
