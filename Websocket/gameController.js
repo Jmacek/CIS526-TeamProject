@@ -172,11 +172,24 @@ function sendGameOver(gameID,msg){
 }
 
 function createGame(player1,player2){
-    var challenges = [];
 
-    challenges[0] = "This is is is is is challenge 1";
-    challenges[1] = "This is This is This is challenge 2";
-    challenges[2] = "This will be challenge 3 3 3 3";
+    var numChallenges = 3;
+    var challenges = [];
+    for(var i = 0; i < numChallenges; i++)
+    {
+        var e = Math.random()*global.challenges.length;
+        e = e|0;
+        challenges[i] = global.challenges[e].challenge;
+    }
+
+
+
+
+
+
+    //challenges[0] = "This is is is is is challenge 1";
+    //challenges[1] = "This is This is This is challenge 2";
+    //challenges[2] = "This will be challenge 3 3 3 3";
 
     var gameID;
     do{
