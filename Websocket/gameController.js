@@ -7,7 +7,7 @@ var gameArr = {};//matches gameIDs to players tuple (socketID,playername) for bo
 var waitQueue = [];
 var socketArr={};//matches sockets to socketIDs
 var playerArr = [];//matches players to socketIDs
-
+var UltraList = [];//list of all challnge words in all games.
 var gameTime = 120;//length of game (in.. milliseconds?)
 
 //where a given socket
@@ -20,7 +20,54 @@ function connect(socket) {
     var clientIP = this.connected[id].client.conn.remoteAddress;
     console.log("(IPv6) ", clientIP, "connected");
 
-    //socket.emit("set_self",)
+    function GoThroughSuperlist(id,text,superList) {
+        var num = id[id.length - 1]-1;//last char is the num
+        var player = id.split("-")[0];
+        var currWords = text.split(" ");
+        var numActive = 0; // this number is the number of active words. it must be zero by the end of the nested loop
+        // or the next word will not be revealed
+        for(var i = 0; i < superList[num].length; i++) {
+            if(superList[num][i].attribute == 'active'){numActive++;}//there was an active element
+            var found = false;//assume the super word does not exist in the text box
+            if(superList[num][i].attribute != 'hidden') {//dont want to check for a hidden value
+                for (var j = 0; j < currWords.length; j++) {
+                    if (superList[num][i].attribute == 'active' && currWords[j].trim() == superList[num][i].word) {
+                        superList[num][i].attribute = player;
+                        found = true;
+                        numActive--; //this active element was in the text box
+                        break;//no need to search anymore the word was found
+                    }
+                    else if (superList[num][i].attribute == player && currWords[j].trim() == superList[num][i].word) {
+                        found = true;//super word does exist in the text box
+                        break;//no need to search anymore the word was found
+                    }
+                }
+            }
+            else {
+                if(numActive == 0){//if there are no active elements
+                    superList[num][i].attribute = 'active';//make it active
+                }
+                break;//break out of the loop
+            }
+            if(!found && superList[num][i].attribute == player){
+                superList[num][i].attribute = 'active';
+            }//it is up for grabs.
+        }//end of outer for loop
+        return superList;
+    }
+
+    socket.on('new_text',function(m) {
+
+        var gameID = lookupGameID(socket.id);//gets the gameid
+        var opponent = lookupOpponent(socket.id);
+        var s = GoThroughSuperlist(m.first.id, m.first.text, UltraList[gameID]);//updates the super list
+        s = GoThroughSuperlist(m.second.id, m.second.text, UltraList[gameID]);//updates it for the other guy
+        socket.emit('score', s);
+        opponent.emit('score', s);
+
+        opponent.emit('new_text',{id:m.first.id,text:m.first.text});
+
+    });
 
     socket.on('disconnect', function () {
         console.log(clientIP, " disconnected");
@@ -31,7 +78,9 @@ function connect(socket) {
             delete gameIDArr[socket.id];
             var gameTuple = lookupGame(gameID);
             clearTimeout(gameTuple.timeout);
-            opponent.emit('game_over','forfeit');
+            if(opponent) {
+                opponent.emit('game_over', 'forfeit');
+            }
             //TODO: if game in GameArr, then forefit
         }
         else{
@@ -47,17 +96,16 @@ function connect(socket) {
         delete playerArr[socket.id];
     });
 
-    socket.on('match',function(m){
+    socket.on('catch',function(m) {
         var opponent = lookupOpponent(socket.id);
         if(opponent !== null)
-            opponent.emit('match', m);
+            opponent.emit('catch',m);
     });
 
-    socket.on('catch',function()
-    {
+    socket.on('caught',function(m){
         var opponent = lookupOpponent(socket.id);
         if(opponent !== null)
-            opponent.emit('catch');
+            opponent.emit('caught',m);
     });
 
     socket.on('identity',function(playerName){
@@ -78,23 +126,34 @@ function connect(socket) {
         }
     });
 
-    socket.on('text_change', function (msg) {
-        var boxID = msg[0];
-        var text = msg[1];
-        //console.log(boxID, 'changed to:', text);
-        //console.log("recieved change from socket " + socket.id);
-        var opponent = lookupOpponent(socket.id);
-        if (opponent !== null) {
-            //console.log("Sending change to "+opponent.id);
-            opponent.emit('text_change', msg);
-        }
-        //io.emit('text_change', msg);8
-    });
-
     socket.emit('identify');
 }
 //socket is the client socket that we are sending the update to
 //players is the object {Player1:"name1",Player2:"name2"} identifying
+function setChallenge(orig_challenges,id) {
+    var num = orig_challenges.length;
+    UltraList[id] = [];
+    //crates a list we can use and update
+    for (var i = 0; i < num; i++) {
+        //will contain word and attribute like "hidden", "Player1" ect.
+        var listOfWordObjects = [];
+        var tempWordList = orig_challenges[i].split(' ');
+        for (var j = 0; j < tempWordList.length; j++) {
+            //set the fist one to active
+            if (j == 0) {
+                listOfWordObjects[j] = {word: tempWordList[j], attribute: "active"}
+            }
+            else {
+                listOfWordObjects[j] = {word: tempWordList[j], attribute: "hidden"}
+            }
+        }
+        UltraList[id][i] = listOfWordObjects;
+    }
+
+    //makes the challenge boxes update
+
+}
+
 function sendGameOver(gameID,msg){
     console.log("sending gameOver");
     var gameTuple = lookupGame(gameID);
@@ -119,6 +178,8 @@ function createGame(player1,player2){
     gameIDArr[player1.socketID] = gameID;
     gameIDArr[player2.socketID] = gameID;
 
+    setChallenge(challenges,gameID);
+
     console.log("player1 socketID = "+player1.socketID);
     console.log("player2 socketID = "+player2.socketID);
 
@@ -129,7 +190,8 @@ function createGame(player1,player2){
 
     var matchup = {player1:player1.playerName,player2:player2.playerName};
     sendMatchup(gameTuple,matchup,gameTime);
-    sendChallenges(gameTuple,challenges)
+
+    sendChallenges(gameTuple,UltraList[gameID])
 }
 
 function lookupSocket(socketID){
@@ -190,8 +252,8 @@ function sendMatchup(gameTuple,matchup,time){
 function sendChallenges(gameTuple,challenges){
     S1 = lookupSocket(gameTuple.player1.socketID);
     S2 = lookupSocket(gameTuple.player2.socketID);
-    S1.emit('challenge_set',challenges);
-    S2.emit('challenge_set',challenges);
+    S1.emit('score',challenges);
+    S2.emit('score',challenges);
 }
 
 function randomInt (low, high) {
