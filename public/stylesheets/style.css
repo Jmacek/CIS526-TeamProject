@@ -3,6 +3,26 @@ body {
   background: url("../images/asanoha-400px.png");
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
+.fullscreen{
+  width: 100%;
+  left: 0;
+  position: absolute;
+  text-align: center;
+  background: url("../images/asanoha-400px.png");
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  z-index:1000;
+}
+
+#loadScreen > div{
+  margin-top:20%;
+  margin-bottom:60%;
+}
+
+#gameOverScreen > div{
+  margin-top:15%;
+  margin-bottom: 40%;
+}
+
 h1 {
   text-align: center;
 }

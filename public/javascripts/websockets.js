@@ -267,6 +267,7 @@ $(function(){
     socket.on('identify',function(){
         var userName = localStorage.username;
 
+        $('#loadScreen').attr('class','fullscreen');
         //if game had already started, force reload
         if ($('body').data('whoami'))
             window.location.reload();
@@ -302,11 +303,12 @@ $(function(){
         }
         count = info.time;
         counter=setInterval(timer, 1000);
-
+        $('#loadScreen').attr('class','hidden');
     });
 
     socket.on('game_over',function(msg){
         document.getElementById("timer").innerHTML="Game Over!";
+        $('#gameOverScreen').attr('class','fullscreen');
         if (msg === 'forfeit')
             var x = 4;
             //do something special

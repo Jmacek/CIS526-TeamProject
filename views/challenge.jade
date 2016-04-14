@@ -5,6 +5,17 @@ block scripts
     script( src ='/javascripts/websockets.js')
 
 block content
+    div.hidden#loadScreen
+        div
+            h2 Please Wait...
+            h3 Matching you with an opponent...
+    div.hidden#gameOverScreen
+        div
+            h3 Game Over!
+            br
+            p Player 1:
+            p Player 2:
+            h4 Winner:
     h1.centered= title
     h1
         span(id='timer')
