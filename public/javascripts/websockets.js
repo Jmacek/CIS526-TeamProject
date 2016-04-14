@@ -10,6 +10,8 @@ $(function(){
     var socket = io();
     var superList = [];
 
+    //use this for later
+    $('.textBox_player1').focusin(function(){console.log("succuess");});
 
     $('#catch').on("click",function()
     {
@@ -18,7 +20,7 @@ $(function(){
     socket.on('catch',function(){
         var curElement = document.activeElement;
         if(curElement.id.indexOf("player"+opponent) !== -1){
-            ServePenalty(5);
+            ServePenalty(15);
         }
     });
 
@@ -243,11 +245,6 @@ $(function(){
         $("body").data("playerName",userName);
         console.log("body.data('playerName') set as: ",$("body").data("playerName"));
         socket.emit('identity',userName);
-    });
-
-    socket.on('challenge_set',function(orig_challenges){
-        setChallenge(orig_challenges);
-
     });
 
     socket.on('match_set',function(info){

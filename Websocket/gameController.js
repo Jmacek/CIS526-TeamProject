@@ -184,7 +184,8 @@ function createGame(player1,player2){
 
     var matchup = {player1:player1.playerName,player2:player2.playerName};
     sendMatchup(gameTuple,matchup,gameTime);
-    sendChallenges(gameTuple,challenges)
+
+    sendChallenges(gameTuple,UltraList[gameID])
 }
 
 function lookupSocket(socketID){
@@ -245,8 +246,8 @@ function sendMatchup(gameTuple,matchup,time){
 function sendChallenges(gameTuple,challenges){
     S1 = lookupSocket(gameTuple.player1.socketID);
     S2 = lookupSocket(gameTuple.player2.socketID);
-    S1.emit('challenge_set',challenges);
-    S2.emit('challenge_set',challenges);
+    S1.emit('score',challenges);
+    S2.emit('score',challenges);
 }
 
 function randomInt (low, high) {
