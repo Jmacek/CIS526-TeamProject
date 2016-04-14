@@ -10,6 +10,7 @@ $(function(){
     var playerId
     var socket = io();
     var superList = [];
+    var opponentCaugth = false;
 
     //use this for later
     $('.textBox_player1').focusin(function(){console.log("succuess");});
@@ -34,7 +35,13 @@ $(function(){
         var curElement = document.activeElement;
         if(curElement.id == m){
             ServePenalty(15);
+            socket.emit('caught',true);//tell opponent ive been caught
         }
+    });
+
+    socket.on('caught',function(m){
+        opponentCaugth = m;
+        alert("opponent cautght: "+m);
     });
 
     //socket.on('catch',function(){
@@ -146,6 +153,7 @@ $(function(){
             }
             else {
                 document.getElementById("time-out").textContent = "Time In";
+                socket.emit('caught',false);//tell opponent im free
             }
         }
 

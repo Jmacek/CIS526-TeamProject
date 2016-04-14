@@ -102,6 +102,12 @@ function connect(socket) {
             opponent.emit('catch',m);
     });
 
+    socket.on('caught',function(m){
+        var opponent = lookupOpponent(socket.id);
+        if(opponent !== null)
+            opponent.emit('caught',m);
+    });
+
     socket.on('identity',function(playerName){
         //TODO: form reset upon connect
         socketArr[socket.id]=socket;
