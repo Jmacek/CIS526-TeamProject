@@ -142,9 +142,11 @@ $(function(){
 
         function showTimeout(time) {
             if (time != 0) {
+                document.body.style.background = '#ff6666';
                 document.getElementById("time-out").textContent = "You got caught! Time-in in: " + time;
             }
             else {
+                document.body.style.background= 'transparent';
                 document.getElementById("time-out").textContent = "Time In";
             }
         }
@@ -277,7 +279,9 @@ $(function(){
         if(info.number == 1) {
             $("body").data("whoami", "player1");
             playerId = "player1";
-            document.getElementById("color").textContent = "red";
+            document.getElementById("color").textContent = "You are Red";
+            $("#color").addClass("red");
+            $(".player1-challengeBox").addClass("player1-box");
             $('h2.player1').html('Me! (player 1)');
             $('h2.player2').html(player2);
             currentPlayer = 1;
@@ -286,7 +290,9 @@ $(function(){
         else {
             $("body").data("whoami", "player2");
             playerId = "player2";
-            document.getElementById("color").textContent = "blue";
+            document.getElementById("color").textContent = "You are Blue";
+            $("#color").addClass("blue");
+            $(".player2-challengeBox").addClass("player2-box");
             $('h2.player1').html(player1+' (player 1)');
             $('h2.player2').html('Me!');
             currentPlayer = 2;
