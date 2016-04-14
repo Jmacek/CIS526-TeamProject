@@ -80,3 +80,13 @@ span.writing:focus{
   -moz-box-shadow: 3px 4px 51px 5px blue;
   box-shadow: 3px 4px 51px 5px blue;
 }
+.pulse-red {
+  -webkit-box-shadow: 3px 4px 51px 5px red;
+  -moz-box-shadow: 3px 4px 51px 5px red;
+  box-shadow: 3px 4px 51px 5px red;
+}
+.pulse-blue {
+  -webkit-box-shadow: 3px 4px 51px 5px blue;
+  -moz-box-shadow: 3px 4px 51px 5px blue;
+  box-shadow: 3px 4px 51px 5px blue;
+}

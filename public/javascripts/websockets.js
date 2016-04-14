@@ -20,7 +20,7 @@ $(function(){
             console.log("about to send catch")
             socket.emit('catch', curElement.id);
         }
-    }
+    };
     //$('.textBox_player1').on("click",function(){console.log("succuess");});
     //$('#player1_box1').on("click",function(){console.log("succuess");});
 
@@ -231,9 +231,25 @@ $(function(){
 
     }
 
-    socket.on('flash',function(num){
-
+    socket.on('flash',function(num, player){
+        var challengeDiv = "#challengeBox-"+(num+1);
+        var className;
+        if(player == 'player1'){ //flash red
+            $(challengeDiv).addClass("pulse-red");
+            className = "pulse-red";
+        }
+        else if(player == 'player2'){
+            $(challengeDiv).addClass("pulse-blue");
+            className = "pulse-blue";
+        }
+        setTimeout(function(){
+            $(challengeDiv).removeClass(className);
+        }, 1000);
     });
+
+    setTimeout(function(challengeDiv, className){
+        $(challengeDiv).removeClass(className);
+    }, 1000);
 
     $(document).on("keyup",function(){
         var curElement = document.activeElement;

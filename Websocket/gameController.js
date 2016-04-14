@@ -34,19 +34,16 @@ function connect(socket) {
             if(superList[num][i].attribute != 'hidden') {//dont want to check for a hidden value
                 for (var j = 0; j < currWords.length; j++) {
                     if (superList[num][i].attribute == 'active' && currWords[j].trim() == superList[num][i].word) {
-                        //flash
-                        console.log(id.split("-")[1]);
-                        var otherPlayersocket = lookupOpponent(id.split("-")[1]);
-                        otherPlayersocket.emit("flash");
+                        console.log("Player: ", player);
                         superList[num][i].attribute = player;
                         found = true;
                         numActive--; //this active element was in the text box
-                        opponent.emit('flash',num);
+                        opponent.emit('flash',num, player); //flash challenge box
                         break;//no need to search anymore the word was found
                     }
                     else if (superList[num][i].attribute == player && currWords[j].trim() == superList[num][i].word) {
                         found = true;//super word does exist in the text box
-                        opponent.emit('flash',num);
+                        opponent.emit('flash',num, player);
                         break;//no need to search anymore the word was found
                     }
                 }
