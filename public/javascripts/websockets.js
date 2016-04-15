@@ -13,10 +13,10 @@ $(function(){
     var opponentCaugth = false;
 
 
-    document.onmouseup = function(e){
-        var t = document.getSelection();
-        console.log("t:", t);
-    }
+    $(document).click(function(event) {
+        var id = event.currentTarget.activeElement.id;
+        document.getElementById(id).focus();
+    });
 
     //use this for later
     document.ondblclick = function(){
