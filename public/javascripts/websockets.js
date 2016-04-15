@@ -15,7 +15,8 @@ $(function(){
     var penaltyTime = 10;
 
     window.onbeforeunload = function (e) {
-        return 'Are you sure?';
+        return "Please don't try to select text.\n" +
+            "If you choose to leave the page, the game will end.";
     };
 
     $(document).on('click',function(event) {
