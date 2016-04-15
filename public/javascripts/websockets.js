@@ -14,21 +14,25 @@ $(function(){
     var currentBox;
 
     $(document).on('click',function(event) {
-        var id = event.currentTarget.activeElement.id;
+        var v = event.currentTarget.activeElement;
+        var id = v.id;
         currentBox = id;
         if(id !== undefined){
+            console.log('currentBox set to,'+v[0]);
             document.getElementById(id).focus();
 
-            console.log('currentBox set to,'+currentBox);
+
         }
 
     });
+
+
 
     $(document).keydown(function(e) {
         var nodeName = e.target.nodeName.toLowerCase();
 
         if (e.which === 8) {
-            if(currentBox.indexOf("player1-w") == -1 && currentBox.indexOf("player2-w") == -1){
+            if(currentBox.indexOf("player1-w") == -1 && currentBox.indexOf("player2-w") == -1 && currentBox.indexOf("player1-box") == -1 && currentBox.indexOf("player2-box")){
                 e.preventDefault();
             }
         }
