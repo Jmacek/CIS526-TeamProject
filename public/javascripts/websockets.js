@@ -26,7 +26,7 @@ $(function(){
             console.log("about to send catch")
             socket.emit('catch', curElement.id);
         }
-    }
+    };
     //$('.textBox_player1').on("click",function(){console.log("succuess");});
     //$('#player1_box1').on("click",function(){console.log("succuess");});
 
@@ -154,9 +154,11 @@ $(function(){
 
         function showTimeout(time) {
             if (time != 0) {
+                document.body.style.background = '#ff6666';
                 document.getElementById("time-out").textContent = "You got caught! Time-in in: " + time;
             }
             else {
+                document.body.style.background= 'transparent';
                 document.getElementById("time-out").textContent = "Time In";
                 socket.emit('caught',false);//tell opponent im free
             }
@@ -232,6 +234,7 @@ $(function(){
     {
         wordIndex[num-1] = index;
         $('span', '#challenge-' + num)[wordIndex[num-1]].className = playerId;
+        console.log(playerId);
         if(challengeWords[num-1][index+1] !== undefined)
         {
             wordIndex[num-1]++;
@@ -241,12 +244,31 @@ $(function(){
 
     }
 
+    socket.on('flash',function(num, player){
+        var challengeDiv = "#challengeBox-"+(num+1);
+        var className;
+        if(player == 'player1'){ //flash red
+            $(challengeDiv).addClass("pulse-red");
+            className = "pulse-red";
+        }
+        else if(player == 'player2'){
+            $(challengeDiv).addClass("pulse-blue");
+            className = "pulse-blue";
+        }
+        setTimeout(function(){
+            $(challengeDiv).removeClass(className);
+        }, 1000);
+    });
+
+    setTimeout(function(challengeDiv, className){
+        $(challengeDiv).removeClass(className);
+    }, 1000);
+
     $('*',"[class*= 'challengeBox']").on('selectstart',function(e){
         //console.log('selecting');
         e.preventDefault();
         return false;
     });
-
     $(document).on("keyup",function(){
         var curElement = document.activeElement;
         //why wont contains work? I have to do this every time to get this to make sense,
@@ -297,8 +319,10 @@ $(function(){
         if(info.number == 1) {
             $("body").data("whoami", "player1");
             playerId = "player1";
-            document.getElementById("color").textContent = "red";
-            $('h2.player1').html('Me!');
+            document.getElementById("color").textContent = "You are Red";
+            $("#color").addClass("red");
+            $(".player1-challengeBox").addClass("player1-box");
+            $('h2.player1').html(player1+' (player 1)');
             $('h2.player2').html(player2);
             currentPlayer = 1;
             opponent = 2;
@@ -306,7 +330,9 @@ $(function(){
         else {
             $("body").data("whoami", "player2");
             playerId = "player2";
-            document.getElementById("color").textContent = "blue";
+            document.getElementById("color").textContent = "You are Blue";
+            $("#color").addClass("blue");
+            $(".player2-challengeBox").addClass("player2-box");
             $('h2.player1').html(player1+'');
             $('h2.player2').html('Me!');
             currentPlayer = 2;
