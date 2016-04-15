@@ -4,6 +4,10 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+#veryEnd{
+  clear:both;
+}
+
 [class*= 'challengeBox'] *,#player1-box1{
   -moz-user-select: -moz-none;
   -khtml-user-select: none;
@@ -19,6 +23,7 @@ body {
 
 .fullscreen{
   width: 100%;
+  height:105%;
   left: 0;
   position: absolute;
   text-align: center;
@@ -29,12 +34,16 @@ body {
 
 #loadScreen > div{
   margin-top:20%;
-  margin-bottom:60%;
+  /*margin-bottom:60%;*/
+}
+
+[class*='challengeBox'] *{
+  font: 20px "Lucida Grande", Helvetica, Arial, sans-serif,bold;
 }
 
 #gameOverScreen > div{
   margin-top:15%;
-  margin-bottom: 60%;
+  /*margin-bottom: 60%;*/
 }
 
 h1 {
