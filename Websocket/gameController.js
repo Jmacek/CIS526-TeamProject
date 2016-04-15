@@ -27,6 +27,7 @@ function connect(socket) {
         var currWords = text.split(" ");
         var used = [];
         var numActive = 0; // this number is the number of active words. it must be zero by the end of the nested loop
+        var curPlayer = lookupSocket(socketID);
         var opponent = lookupOpponent(socketID);
         // or the next word will not be revealed
         for(var i = 0; i < superList[num].length; i++) {
@@ -36,11 +37,11 @@ function connect(socket) {
                 for (var j = 0; j < currWords.length; j++) {
                     if(!used[j]) {
                         if (superList[num][i].attribute == 'active' && currWords[j].trim() == superList[num][i].word) {
-                            console.log("Player: ", player);
                             superList[num][i].attribute = player;
                             found = true;
                             used[j] = true;//this word was used
                             numActive--; //this active element was in the text box
+                            curPlayer.emit('flash', num, player); //flash challenge box
                             opponent.emit('flash', num, player); //flash challenge box
                             break;//no need to search anymore the word was found
                         }

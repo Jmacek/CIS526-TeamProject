@@ -34,7 +34,7 @@ $(function(){
     {
         socket.emit('catch');
     });
-
+    //catching opponent
     socket.on('catch',function(m){
         console.log("in catch",m);
         var curElement = document.activeElement;
@@ -46,6 +46,9 @@ $(function(){
 
     socket.on('caught',function(m){
         opponentCaugth = m;
+        document.body.style.background = '#ADDFFF'
+        setTimeout(function(){document.body.style.background = 'transparent';},300);
+        ;
         //alert("opponent caught: "+m);
     });
 
@@ -243,7 +246,7 @@ $(function(){
         }
 
     }
-
+    //get a word
     socket.on('flash',function(num, player){
         var challengeDiv = "#challengeBox-"+(num+1);
         var className;
