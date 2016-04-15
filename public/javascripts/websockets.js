@@ -7,41 +7,41 @@ var count = 0;
 var counter; //needed for end of timer
 
 $(function(){
-    var playerId
+    var playerId;
     var socket = io();
     var superList = [];
     var userCaught = false;
     var currentBox;
+    var penaltyTime = 10;
+
+    window.onbeforeunload = function (e) {
+        return 'Are you sure?';
+    };
 
     $(document).on('click',function(event) {
         var v = event.currentTarget.activeElement;
-        var id = v.id;
-        currentBox = id;
-        if(id !== undefined){
-            console.log('currentBox set to,'+v[0]);
+        var id = v.id.trim();
+        if(id !== undefined  && id !== null && id !== ""){
+            currentBox = id;
+            console.log('currentBox set to,'+currentBox);
             document.getElementById(id).focus();
-
-
         }
 
-    });
-
-
-
-    $(document).keydown(function(e) {
-        var nodeName = e.target.nodeName.toLowerCase();
-
-        if (e.which === 8) {
-            if(currentBox.indexOf("player1-w") == -1 && currentBox.indexOf("player2-w") == -1 && currentBox.indexOf("player1-box") == -1 && currentBox.indexOf("player2-box")){
-                e.preventDefault();
-            }
-        }
     });
 
     //use this for later
-    document.ondblclick = function(){
+    document.ondblclick = function(event){
 
         //var curElement = document.activeElement;
+        var v = event.currentTarget.activeElement;
+        var id = v.id.trim();
+        console.log("doubleclick registered in "+id);
+
+        if(id !== undefined && id !== null&& id !== ""){
+            currentBox = id;
+            console.log('doubleclick currentBox set to,'+currentBox);
+            document.getElementById(id).focus();
+        }
 
         if(currentBox.split("-")[0] == playerId) {
             console.log("about to send catch");
@@ -61,7 +61,7 @@ $(function(){
         var curElement = document.activeElement;
         ///console.log("trying to catch in "+currentBox+', activeElement = '+curElement);
         if(currentBox == m && !userCaught){
-            ServePenalty(10);
+            ServePenalty(penaltyTime);
             socket.emit('caught',true);//tell opponent ive been caught
         }
     });
@@ -134,7 +134,7 @@ $(function(){
                 for (var j = 0; j < superList[i].length; j++) {
                     toReplace [j] = "<span class='" + superList[i][j].attribute + "'>" + superList[i][j].word + "</span>";
                 }
-                var num = i + 1
+                var num = i + 1;
                 $('#challenge-' + num).html(toReplace.join(' '));
 
             }
