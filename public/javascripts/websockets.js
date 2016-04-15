@@ -46,7 +46,7 @@ $(function(){
 
     socket.on('caught',function(m){
         opponentCaugth = m;
-        alert("opponent caught: "+m);
+        //alert("opponent caught: "+m);
     });
 
     //socket.on('catch',function(){
