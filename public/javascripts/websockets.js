@@ -10,6 +10,7 @@ $(function(){
     var playerId
     var socket = io();
     var superList = [];
+    var opponentCaugth = false;
 
     //use this for later
     $('.textBox_player1').focusin(function(){console.log("succuess");});
@@ -34,7 +35,13 @@ $(function(){
         var curElement = document.activeElement;
         if(curElement.id == m){
             ServePenalty(15);
+            socket.emit('caught',true);//tell opponent ive been caught
         }
+    });
+
+    socket.on('caught',function(m){
+        opponentCaugth = m;
+        alert("opponent cautght: "+m);
     });
 
     //socket.on('catch',function(){
@@ -148,6 +155,7 @@ $(function(){
             else {
                 document.body.style.background= 'transparent';
                 document.getElementById("time-out").textContent = "Time In";
+                socket.emit('caught',false);//tell opponent im free
             }
         }
 
@@ -251,6 +259,11 @@ $(function(){
         $(challengeDiv).removeClass(className);
     }, 1000);
 
+    $('*',"[class*= 'challengeBox']").on('selectstart',function(e){
+        //console.log('selecting');
+        e.preventDefault();
+        return false;
+    });
     $(document).on("keyup",function(){
         var curElement = document.activeElement;
         //why wont contains work? I have to do this every time to get this to make sense,
@@ -282,6 +295,7 @@ $(function(){
     socket.on('identify',function(){
         var userName = localStorage.username;
 
+        $('#loadScreen').attr('class','fullscreen');
         //if game had already started, force reload
         if ($('body').data('whoami'))
             window.location.reload();
@@ -303,7 +317,7 @@ $(function(){
             document.getElementById("color").textContent = "You are Red";
             $("#color").addClass("red");
             $(".player1-challengeBox").addClass("player1-box");
-            $('h2.player1').html('Me! (player 1)');
+            $('h2.player1').html(player1+' (player 1)');
             $('h2.player2').html(player2);
             currentPlayer = 1;
             opponent = 2;
@@ -314,18 +328,32 @@ $(function(){
             document.getElementById("color").textContent = "You are Blue";
             $("#color").addClass("blue");
             $(".player2-challengeBox").addClass("player2-box");
-            $('h2.player1').html(player1+' (player 1)');
+            $('h2.player1').html(player1+'');
             $('h2.player2').html('Me!');
             currentPlayer = 2;
             opponent = 1;
         }
         count = info.time;
         counter=setInterval(timer, 1000);
-
+        $('#loadScreen').attr('class','hidden');
     });
 
     socket.on('game_over',function(msg){
         document.getElementById("timer").innerHTML="Game Over!";
+        var score1 = $('#player1_score').text();
+        var score2 = $('#player2_score').text();
+        var winner;
+        if (score1>score2)
+            winner = 'Player 1';
+        else if (score1<score2)
+            winner = 'Player 2';
+        else
+            winner = 'Tie';
+
+        $('#gameOverScreen div h4:nth-of-type(1)').text('Player 1: '+score1);
+        $('#gameOverScreen div h4:nth-of-type(2)').text('Player 2: '+score2);
+        $('#gameOverScreen div h3:nth-of-type(1)').text('Winner: '+winner);
+        $('#gameOverScreen').attr('class','fullscreen');
         if (msg === 'forfeit')
             var x = 4;
             //do something special

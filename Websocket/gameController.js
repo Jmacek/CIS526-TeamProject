@@ -8,7 +8,7 @@ var waitQueue = [];
 var socketArr={};//matches sockets to socketIDs
 var playerArr = [];//matches players to socketIDs
 var UltraList = [];//list of all challnge words in all games.
-var gameTime = 120;//length of game (in.. milliseconds?)
+var gameTime = 120;//length of game (in seconds)
 
 //where a given socket
 function connect(socket) {
@@ -25,30 +25,35 @@ function connect(socket) {
         var num = id[id.length - 1]-1;//last char is the num
         var player = id.split("-")[0];
         var currWords = text.split(" ");
+        var used = [];
         var numActive = 0; // this number is the number of active words. it must be zero by the end of the nested loop
         var opponent = lookupOpponent(socketID);
         // or the next word will not be revealed
         for(var i = 0; i < superList[num].length; i++) {
             if(superList[num][i].attribute == 'active'){numActive++;}//there was an active element
             var found = false;//assume the super word does not exist in the text box
-            if(superList[num][i].attribute != 'hidden') {//dont want to check for a hidden value
+            if(superList[num][i].attribute != 'hidden') {//don't want to check for a hidden value
                 for (var j = 0; j < currWords.length; j++) {
-                    if (superList[num][i].attribute == 'active' && currWords[j].trim() == superList[num][i].word) {
-                        console.log("Player: ", player);
-                        superList[num][i].attribute = player;
-                        found = true;
-                        numActive--; //this active element was in the text box
-                        opponent.emit('flash',num, player); //flash challenge box
-                        break;//no need to search anymore the word was found
-                    }
-                    else if (superList[num][i].attribute == player && currWords[j].trim() == superList[num][i].word) {
-                        found = true;//super word does exist in the text box
-                        opponent.emit('flash',num, player);
-                        break;//no need to search anymore the word was found
+                    if(!used[j]) {
+                        if (superList[num][i].attribute == 'active' && currWords[j].trim() == superList[num][i].word) {
+                            console.log("Player: ", player);
+                            superList[num][i].attribute = player;
+                            found = true;
+                            used[j] = true;//this word was used
+                            numActive--; //this active element was in the text box
+                            opponent.emit('flash', num, player); //flash challenge box
+                            break;//no need to search anymore the word was found
+                        }
+                        else if (superList[num][i].attribute == player && currWords[j].trim() == superList[num][i].word) {
+                            found = true;//super word does exist in the text box
+                            used[j] = true;//this word was used
+                            //opponent.emit('flash', num, player);
+                            break;//no need to search anymore the word was found
+                        }
                     }
                 }
             }
-            else {
+            else {//if we hit a hidden element we exit the loop, all other elements will be hidden
                 if(numActive == 0){//if there are no active elements
                     superList[num][i].attribute = 'active';//make it active
                 }
@@ -105,6 +110,12 @@ function connect(socket) {
         var opponent = lookupOpponent(socket.id);
         if(opponent !== null)
             opponent.emit('catch',m);
+    });
+
+    socket.on('caught',function(m){
+        var opponent = lookupOpponent(socket.id);
+        if(opponent !== null)
+            opponent.emit('caught',m);
     });
 
     socket.on('identity',function(playerName){
@@ -165,9 +176,9 @@ function sendGameOver(gameID,msg){
 function createGame(player1,player2){
     var challenges = [];
 
-    challenges[0] = "This is challenge 1";
-    challenges[1] = "This is challenge 2";
-    challenges[2] = "This will be challenge 3";
+    challenges[0] = "This is is is is is challenge 1";
+    challenges[1] = "This is This is This is challenge 2";
+    challenges[2] = "This will be challenge 3 3 3 3";
 
     var gameID;
     do{
