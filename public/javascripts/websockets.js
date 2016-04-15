@@ -11,10 +11,11 @@ $(function(){
     var socket = io();
     var superList = [];
     var opponentCaugth = false;
+    var currentBox;
 
-
-    $(document).click(function(event) {
+    $(document).on('click',function(event) {
         var id = event.currentTarget.activeElement.id;
+        currentBox = id;
         document.getElementById(id).focus();
     });
 
@@ -23,7 +24,7 @@ $(function(){
 
         var curElement = document.activeElement;
         if(curElement.id.split("-")[0] == playerId) {
-            console.log("about to send catch")
+            console.log("about to send catch");
             socket.emit('catch', curElement.id);
         }
     };
@@ -36,9 +37,10 @@ $(function(){
     });
     //catching opponent
     socket.on('catch',function(m){
-        console.log("in catch",m);
+        ///console.log("in catch",m);
         var curElement = document.activeElement;
-        if(curElement.id == m){
+        ///console.log("trying to catch in "+currentBox+', activeElement = '+curElement);
+        if(currentBox == m){
             ServePenalty(15);
             socket.emit('caught',true);//tell opponent ive been caught
         }
@@ -267,12 +269,31 @@ $(function(){
         $(challengeDiv).removeClass(className);
     }, 1000);
 
-    $('*',"[class*= 'challengeBox']").on('selectstart',function(e){
-        //console.log('selecting');
-        e.preventDefault();
-        return false;
+    $('*',"[class*= 'challengeBox']").on('keyup',function(e){
+        if (window.getSelection && window.getSelection().type === 'Range') {
+        if (window.getSelection().empty) {  // Chrome
+            window.getSelection().empty();
+        } else if (window.getSelection().removeAllRanges) {  // Firefox
+            window.getSelection().removeAllRanges();
+        }
+        } else if (document.selection && document.selection.type === 'Range') {  // IE?
+            document.selection.empty();
+        }
     });
-    $(document).on("keyup",function(){
+
+    $('*').on('mouseup',function(e){
+        if (window.getSelection && window.getSelection().type === 'Range') {
+            if (window.getSelection().empty) {  // Chrome
+                window.getSelection().empty();
+            } else if (window.getSelection().removeAllRanges) {  // Firefox
+                window.getSelection().removeAllRanges();
+            }
+        } else if (document.selection && document.selection.type === 'Range') {  // IE?
+            document.selection.empty();
+        }
+    });
+
+    $('*',"[class*= 'challengeBox']").on("keyup",function(){
         var curElement = document.activeElement;
         //why wont contains work? I have to do this every time to get this to make sense,
         // aslo why does class name not return just the class name.
