@@ -267,12 +267,31 @@ $(function(){
         $(challengeDiv).removeClass(className);
     }, 1000);
 
-    $('*',"[class*= 'challengeBox']").on('selectstart',function(e){
-        //console.log('selecting');
-        e.preventDefault();
-        return false;
+    $('*',"[class*= 'challengeBox']").on('keyup',function(e){
+        if (window.getSelection && window.getSelection().type === 'Range') {
+        if (window.getSelection().empty) {  // Chrome
+            window.getSelection().empty();
+        } else if (window.getSelection().removeAllRanges) {  // Firefox
+            window.getSelection().removeAllRanges();
+        }
+        } else if (document.selection && document.selection.type === 'Range') {  // IE?
+            document.selection.empty();
+        }
     });
-    $(document).on("keyup",function(){
+
+    $('*').on('mouseup',function(e){
+        if (window.getSelection && window.getSelection().type === 'Range') {
+            if (window.getSelection().empty) {  // Chrome
+                window.getSelection().empty();
+            } else if (window.getSelection().removeAllRanges) {  // Firefox
+                window.getSelection().removeAllRanges();
+            }
+        } else if (document.selection && document.selection.type === 'Range') {  // IE?
+            document.selection.empty();
+        }
+    });
+
+    $('*',"[class*= 'challengeBox']").on("keyup",function(){
         var curElement = document.activeElement;
         //why wont contains work? I have to do this every time to get this to make sense,
         // aslo why does class name not return just the class name.
