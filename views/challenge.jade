@@ -5,6 +5,17 @@ block scripts
     script( src ='/javascripts/websockets.js')
 
 block content
+    div.hidden#loadScreen
+        div
+            h2 Please Wait...
+            h3 Matching you with an opponent...
+    div.hidden#gameOverScreen
+        div
+            h2 Game Over!
+            br
+            h4 Player 1:
+            h4 Player 2:
+            h3 Winner:
     h1.centered= title
     h1
         span(id='timer')
@@ -61,6 +72,4 @@ block content
                 .item
                     div(id='player2-box'+i)
                         span.writing.player2(id='player2-w'+i class = 'textBox_player2' contenteditable='true')
-        -}
-
-
+    - }
