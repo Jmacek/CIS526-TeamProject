@@ -15,10 +15,10 @@ $(function(){
 
     $(document).on('click',function(event) {
         var id = event.currentTarget.activeElement.id;
-
+        currentBox = id;
         if(id !== undefined){
             document.getElementById(id).focus();
-            currentBox = id;
+
             console.log('currentBox set to,'+currentBox);
         }
 
@@ -28,10 +28,7 @@ $(function(){
         var nodeName = e.target.nodeName.toLowerCase();
 
         if (e.which === 8) {
-            if ((nodeName === 'input' && e.target.type === 'text') ||
-                nodeName === 'textarea') {
-                // do nothing
-            } else {
+            if(currentBox.indexOf("player1-w") == -1 && currentBox.indexOf("player2-w") == -1){
                 e.preventDefault();
             }
         }
