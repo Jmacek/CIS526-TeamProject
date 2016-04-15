@@ -322,7 +322,7 @@ $(function(){
             document.getElementById("color").textContent = "You are Red";
             $("#color").addClass("red");
             $(".player1-challengeBox").addClass("player1-box");
-            $('h2.player1').html(player1+' (player 1)');
+            $('h2.player1').html('Me!');
             $('h2.player2').html(player2);
             currentPlayer = 1;
             opponent = 2;
@@ -333,7 +333,7 @@ $(function(){
             document.getElementById("color").textContent = "You are Blue";
             $("#color").addClass("blue");
             $(".player2-challengeBox").addClass("player2-box");
-            $('h2.player1').html(player1+'');
+            $('h2.player1').html(player1);
             $('h2.player2').html('Me!');
             currentPlayer = 2;
             opponent = 1;
@@ -348,16 +348,26 @@ $(function(){
         var score1 = $('#player1_score').text();
         var score2 = $('#player2_score').text();
         var winner;
-        if (score1>score2)
-            winner = 'Player 1';
-        else if (score1<score2)
-            winner = 'Player 2';
-        else
-            winner = 'Tie';
 
-        $('#gameOverScreen div h4:nth-of-type(1)').text('Player 1: '+score1);
-        $('#gameOverScreen div h4:nth-of-type(2)').text('Player 2: '+score2);
-        $('#gameOverScreen div h3:nth-of-type(1)').text('Winner: '+winner);
+        var win = $('#gameOverScreen div h3:nth-of-type(1)');
+        if (score1>score2){
+            win.text('Winner: Player 1');
+            win.attr('class','player1');
+        }
+        else if (score1<score2) {
+            win.text('Winner: Player 2');
+            win.attr('class','player2');
+        }
+        else
+            win.text('Tie!');
+
+        var p1 = $('#gameOverScreen div h4:nth-of-type(1)');
+        p1.text('Player 1: '+score1);
+        p1.attr('class','player1');
+        var p2 = $('#gameOverScreen div h4:nth-of-type(2)');
+        p2.text('Player 2: '+score2);
+        p2.attr('class','player2');
+
         $('#gameOverScreen').attr('class','fullscreen');
         if (msg === 'forfeit')
             var x = 4;
