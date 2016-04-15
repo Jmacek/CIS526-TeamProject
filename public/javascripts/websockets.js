@@ -10,22 +10,28 @@ $(function(){
     var playerId
     var socket = io();
     var superList = [];
-    var opponentCaugth = false;
+    var userCaught = false;
     var currentBox;
 
     $(document).on('click',function(event) {
         var id = event.currentTarget.activeElement.id;
-        currentBox = id;
-        document.getElementById(id).focus();
+
+        if(id !== undefined){
+            document.getElementById(id).focus();
+            currentBox = id;
+            console.log('currentBox set to,'+currentBox);
+        }
+
     });
 
     //use this for later
     document.ondblclick = function(){
 
-        var curElement = document.activeElement;
-        if(curElement.id.split("-")[0] == playerId) {
+        //var curElement = document.activeElement;
+
+        if(currentBox.split("-")[0] == playerId) {
             console.log("about to send catch");
-            socket.emit('catch', curElement.id);
+            socket.emit('catch', currentBox);
         }
     };
     //$('.textBox_player1').on("click",function(){console.log("succuess");});
@@ -40,17 +46,16 @@ $(function(){
         ///console.log("in catch",m);
         var curElement = document.activeElement;
         ///console.log("trying to catch in "+currentBox+', activeElement = '+curElement);
-        if(currentBox == m){
-            ServePenalty(15);
+        if(currentBox == m && !userCaught){
+            ServePenalty(10);
             socket.emit('caught',true);//tell opponent ive been caught
         }
     });
 
     socket.on('caught',function(m){
-        opponentCaugth = m;
-        document.body.style.background = '#ADDFFF'
+        userCaught = m;
+        document.body.style.background = '#ADDFFF';
         setTimeout(function(){document.body.style.background = 'transparent';},300);
-        ;
         //alert("opponent caught: "+m);
     });
 
@@ -134,7 +139,7 @@ $(function(){
                 }
 
             var s2 = document.getElementsByClassName("textBox_player2");
-                console.log("s2",s2);
+                //console.log("s2",s2);
                 for (var i = 0; i < s2.length; i++) {
                     s2[i].contentEditable = false;
                 }
@@ -145,7 +150,7 @@ $(function(){
 
             for(var i = 0; i < s1.length;i++)
             {
-                console.log("id",s1[i].id);
+                //console.log("id",s1[i].id);
                 //looks stupid but works.
                 s1[i].contentEditable = true;
             }
@@ -170,10 +175,12 @@ $(function(){
         }
 
         function ServePenalty(time) {
+            userCaught = true;
             disableTextboxes();
             showTimeout(time);
 
             setTimeout(function () {
+                userCaught = false;
                     enableTextboxes();
                 }
                 , time * 1000);
@@ -216,7 +223,7 @@ $(function(){
         return out;
     }
 
-    function findOpositeElement(curElement)
+    function findOppositeElement(curElement)
     {
 
         var elms = curElement.split("-");
@@ -230,12 +237,12 @@ $(function(){
         {
             elms[0] = replaceAt(elms[0],elms[0].length-1,"1");
             var v =  elms[0]+"-"+elms[1];
-            console.log(v);
+            //console.log(v);
             return v;
         }
     }
 
-    function PreformMatch(playerId,num,index)//marked
+    function PerformMatch(playerId,num,index)//marked
     {
         wordIndex[num-1] = index;
         $('span', '#challenge-' + num)[wordIndex[num-1]].className = playerId;
@@ -300,7 +307,7 @@ $(function(){
         //checks to make sure the keypress is in a player box otherwize it will cause errors
         if(curElement.className.toString().indexOf("textBox_player1") != -1 || curElement.className.toString().indexOf("textBox_player2") != -1)
         //tell the server that the text was updated
-            var opositeId = findOpositeElement(curElement.id);
+            var opositeId = findOppositeElement(curElement.id);
 
         var opositeText = document.getElementById(opositeId).textContent;
         var m = {first:{id:curElement.id,text:curElement.textContent},
