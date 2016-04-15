@@ -12,8 +12,13 @@ $(function(){
     var superList = [];
     var opponentCaugth = false;
 
+
+    document.onmouseup = function(e){
+        var t = document.getSelection();
+        console.log("t:", t);
+    }
+
     //use this for later
-    $('.textBox_player1').focusin(function(){console.log("succuess");});
     document.ondblclick = function(){
 
         var curElement = document.activeElement;
@@ -41,7 +46,7 @@ $(function(){
 
     socket.on('caught',function(m){
         opponentCaugth = m;
-        alert("opponent cautght: "+m);
+        alert("opponent caught: "+m);
     });
 
     //socket.on('catch',function(){
