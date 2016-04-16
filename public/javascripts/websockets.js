@@ -12,12 +12,18 @@ $(function(){
     var superList = [];
     var userCaught = false;
     var currentBox;
-    var penaltyTime = 10;
+    var penaltyTime = 10; //in seconds
+    var backspaceSlowdownTime = 100; //in milliseconds
+    var backspaceIsPressed = false;
+    var backspaceSlowdown = false;
 
-    window.onbeforeunload = function (e) {
-        return "Please don't try to select text.\n" +
-            "If you choose to leave the page, the game will end.";
-    };
+    $(window).on('beforeunload', function (e) {
+        if(backspaceIsPressed){
+            backspaceIsPressed = false;
+            return "Please don't try to select text.\n" +
+                "If you choose to leave the page, the game will end.";
+        }
+    });
 
     $(document).on('click',function(event) {
         var v = event.currentTarget.activeElement;
@@ -73,14 +79,6 @@ $(function(){
         setTimeout(function(){document.body.style.background = 'transparent';},300);
         //alert("opponent caught: "+m);
     });
-
-    //socket.on('catch',function(){
-    //
-    //    var curElement = document.activeElement;
-    //    if(curElement.id.indexOf("player"+opponent) !== -1){
-    //        ServePenalty(15);
-    //    }
-    //});
 
     function setScore() {
         var p1Score = 0;
@@ -291,6 +289,7 @@ $(function(){
         $(challengeDiv).removeClass(className);
     }, 1000);
 
+    /*
     $('*',"[class*= 'challengeBox']").on('keyup',function(e){
         if (window.getSelection && window.getSelection().type === 'Range') {
         if (window.getSelection().empty) {  // Chrome
@@ -302,8 +301,9 @@ $(function(){
             document.selection.empty();
         }
     });
+    */
 
-    $('*').on('mouseup',function(e){
+    $('*').on('mouseup keyup',function(e){
         if (window.getSelection && window.getSelection().type === 'Range') {
             if (window.getSelection().empty) {  // Chrome
                 window.getSelection().empty();
@@ -315,20 +315,70 @@ $(function(){
         }
     });
 
-    $('*',"[class*= 'challengeBox']").on("keyup",function(){
+    $('*',"[class*= 'challengeBox']").on("keyup",function(e){
+
         var curElement = document.activeElement;
+
+        var elementClass = curElement.className.toString();
+        var player = $("body").data("whoami");
+        var ownsBox = (elementClass.indexOf(player) != -1);
+
+        //logic for slowing down deletion when deleting from an opponent's box
+        if(!ownsBox && backspaceSlowdown)
+            e.preventDefault();
+        else if(!ownsBox)
+        {
+            backspaceSlowdown = true;
+            setTimeout(function(){backspaceSlowdown = false},backspaceSlowdownTime);
+        }
+
+
+
         //why wont contains work? I have to do this every time to get this to make sense,
         // aslo why does class name not return just the class name.
         //checks to make sure the keypress is in a player box otherwize it will cause errors
         if(curElement.className.toString().indexOf("textBox_player1") != -1 || curElement.className.toString().indexOf("textBox_player2") != -1)
         //tell the server that the text was updated
-            var opositeId = findOppositeElement(curElement.id);
+            var oppositeId = findOppositeElement(curElement.id);
 
-        var opositeText = document.getElementById(opositeId).textContent;
+        var oppositeText = document.getElementById(oppositeId).textContent;
         var m = {first:{id:curElement.id,text:curElement.textContent},
-            second:{id:opositeId,text:opositeText}};//check their stuff
+            second:{id:oppositeId,text:oppositeText}};//check their stuff
         socket.emit('new_text',m);//check current box
 
+    });
+
+    $(document).on('keydown',function(event){
+        if (event.which == 8 || event.keyCode == 8) {
+            backspaceIsPressed = true
+        }
+        if($(event.target).is('body'))
+            event.preventDefault();
+        var curElement = document.activeElement;
+
+        var elementClass = curElement.className.toString();
+        var player = $("body").data("whoami");
+        var ownsBox = (elementClass.indexOf(player) != -1);
+
+        //logic for slowing down deletion when deleting from an opponent's box
+        if(backspaceIsPressed&& !ownsBox && backspaceSlowdown){
+            event.preventDefault();
+            return false;
+        }
+        else if(backspaceIsPressed&& !ownsBox )
+        {
+            backspaceSlowdown = true;
+            setTimeout(function(){
+                backspaceSlowdown = false;
+            },backspaceSlowdownTime);
+
+        }
+    });
+
+    $(document).on('keyup',function(event){
+        if (event.which == 8 || event.keyCode == 8) {
+            backspaceIsPressed = false
+        }
     });
 
     socket.on('new_text',function(m){
