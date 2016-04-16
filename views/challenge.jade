@@ -3,6 +3,7 @@ extends layout
 block scripts
     script( src ='https://cdn.socket.io/socket.io-1.4.5.js')
     script( src ='/javascripts/websockets.js')
+    script( src ='/javascripts/websocket-functions.js')
 
 block content
     div.hidden#loadScreen
@@ -14,7 +15,7 @@ block content
             h2 Welcome to Typing War!
             h4 You are the ... player
             br
-            h4 Type the words displayed in the
+            h4 Type the words displayed in the&nbsp
                 span.active CENTER BOX
             h4 You can DELETE your opponents words!
             h4 If you see them deleting your words, DOUBLE CLICK your box to CATCH them and stun them!
