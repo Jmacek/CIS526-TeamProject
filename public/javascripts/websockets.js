@@ -25,36 +25,51 @@ $(function(){
         }
     });
 
-    $(document).on('click',function(event) {
-        var v = event.currentTarget.activeElement;
-        var id = v.id.trim();
-        if(id !== undefined  && id !== null && id !== ""){
-            currentBox = id;
+    $('div').on('click',function(event) {
+        //console.log(event);
+        //var v = event.currentTarget.activeElement;
+        var spanID = $(this).children().children().children().attr('id');
+        //var id = v.id.trim();
+        //if(id !== undefined  && id !== null && id !== ""){
+        //    currentBox = id;
+        //    console.log('currentBox set to,'+currentBox);
+        //    document.getElementById(id).focus();
+        //}
+        //else
+        if(spanID !== undefined){
+            currentBox = spanID;
             console.log('currentBox set to,'+currentBox);
-            document.getElementById(id).focus();
+            document.getElementById(spanID).focus();
         }
-
     });
 
     //use this for later
-    document.ondblclick = function(event){
+    $('div').on('dblclick',function(event){
 
         //var curElement = document.activeElement;
-        var v = event.currentTarget.activeElement;
-        var id = v.id.trim();
-        console.log("doubleclick registered in "+id);
+        //var v = event.currentTarget.activeElement;
+        //var id = v.id.trim();
+        //console.log("doubleclick registered in "+id);
 
-        if(id !== undefined && id !== null&& id !== ""){
+        var spanID = $(this).children().children().children().attr('id');
+
+        /*if(id !== undefined && id !== null&& id !== ""){
             currentBox = id;
-            console.log('doubleclick currentBox set to,'+currentBox);
+            //console.log('doubleclick currentBox set to,'+currentBox);
             document.getElementById(id).focus();
+        }*/
+
+        if(spanID !== undefined){
+            currentBox = spanID;
+            console.log('currentBox set to,'+currentBox);
+            document.getElementById(spanID).focus();
         }
 
         if(currentBox.split("-")[0] == playerId) {
             console.log("about to send catch");
             socket.emit('catch', currentBox);
         }
-    };
+    });
     //$('.textBox_player1').on("click",function(){console.log("succuess");});
     //$('#player1_box1').on("click",function(){console.log("succuess");});
 
