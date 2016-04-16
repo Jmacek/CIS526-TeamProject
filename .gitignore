@@ -2,3 +2,8 @@
 development.sqlite3
 node_modules
 npm-debug.log
+symmKey.txt
+server.crt
+pubKey.txt
+privKey.txt
+secret.txt
