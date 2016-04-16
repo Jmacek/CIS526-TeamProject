@@ -5,12 +5,14 @@ var crypto = require('crypto'),
     nodeRSA = require('node-rsa'),
     fs = require('fs');
 
-const secret = "sgb879ash*&S^FhsfSD!@sh";
 const symmAlgorithm = 'aes-256-ctr';
 const signAlgorithm = 'RSA-SHA256';
 const hashAlgorithm = 'sha256';
-var tinyCipher = crypto.createCipher(symmAlgorithm, secret);
-var tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
+//secret vars needs to be declared here
+var secret = "";
+const secretFile = "./authentication/secret.txt";
+var tinyCipher = crypto.createCipher(symmAlgorithm, getSecret());
+var tinyDecipher = crypto.createDecipher(symmAlgorithm,getSecret());
 
 //path location of keys
 const privFile = "./authentication/privKey.txt";
@@ -44,7 +46,7 @@ function seed() {
     var pubKeyPEM = key.exportKey(pubImportType);
     console.log("Public Key : " ,pubKeyPEM);
 
-    tinyCipher = crypto.createCipher(symmAlgorithm, secret);
+    tinyCipher = crypto.createCipher(symmAlgorithm, getSecret());
     var pubKeySave = tinyCipher.update(pubKeyPEM,asymPEMKeyType,keyStoreType);
     pubKeySave += tinyCipher.final(keyStoreType);
 
@@ -54,11 +56,18 @@ function seed() {
     var privKeyPEM = key.exportKey(privImportType);
     console.log("Private Key : " ,privKeyPEM);
 
-    tinyCipher = crypto.createCipher(symmAlgorithm, secret);
+    tinyCipher = crypto.createCipher(symmAlgorithm, getSecret());
     var privKeySave = tinyCipher.update(privKeyPEM,asymPEMKeyType,keyStoreType);
     privKeySave += tinyCipher.final(keyStoreType);
 
     fs.writeFileSync(privFile,privKeySave,keyStoreType);
+}
+function seedSecret(){
+    //generate and save secret
+    var secretKey = createSecret();
+    console.log("Secret: ", secretKey);
+
+    fs.writeFileSync(secretFile,secretKey,'utf8');
 }
 
 function getSymmmetric(){
@@ -79,7 +88,7 @@ function getPublic(){
     var pubKeySave = fs.readFileSync(pubFile,keyStoreType);
 
     //decipher and store the public key
-    tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
+    tinyDecipher = crypto.createDecipher(symmAlgorithm,getSecret());
     var pubKeyPEM = tinyDecipher.update(pubKeySave,keyStoreType,asymPEMKeyType);
     pubKeyPEM += tinyDecipher.final(asymPEMKeyType);
 
@@ -93,7 +102,7 @@ function getPublicPem(){
     var pubKeySave = fs.readFileSync(pubFile,keyStoreType);
 
     //decipher and store the public key
-    tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
+    tinyDecipher = crypto.createDecipher(symmAlgorithm,getSecret());
     var pubKeyPEM = tinyDecipher.update(pubKeySave,keyStoreType,asymPEMKeyType);
     pubKeyPEM += tinyDecipher.final(asymPEMKeyType);
 
@@ -108,7 +117,7 @@ function getPrivate() {
     var privKeySave = fs.readFileSync(privFile,keyStoreType);
 
     //decipher and store the private key
-    tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
+    tinyDecipher = crypto.createDecipher(symmAlgorithm,getSecret());
     var privKeyPEM = tinyDecipher.update(privKeySave,keyStoreType,asymPEMKeyType);
     privKeyPEM += tinyDecipher.final(asymPEMKeyType);
 
@@ -123,7 +132,7 @@ function getPrivatePEM() {
     var privKeySave = fs.readFileSync(privFile,keyStoreType);
 
     //decipher and store the private key
-    tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
+    tinyDecipher = crypto.createDecipher(symmAlgorithm,getSecret());
     var privKeyPEM = tinyDecipher.update(privKeySave,keyStoreType,asymPEMKeyType);
     privKeyPEM += tinyDecipher.final(asymPEMKeyType);
 
@@ -134,6 +143,39 @@ function getPrivatePEM() {
     //console.log(privKeyPEM);
 
     return privKeyPEM;
+}
+
+/*
+ Gets the secret, seeds if doesn't exist.
+ */
+function getSecret() {
+    if (secret === null || secret === undefined || secret === ""){
+        try {
+            secret = fs.readFileSync(secretFile, 'utf8');
+            return getSecret();
+        } catch(e) {
+            if (e.code === 'ENOENT') { //code for file not found
+                seedSecret();
+                return getSecret();
+            }
+            else { //any other error
+                throw e;
+            }
+        }
+    }
+    else {
+        return secret;
+    }
+}
+
+function createSecret() {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@!#$%^&*()_-+=";
+
+    for( var i=0; i < 24; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
 }
 /*
 function loadKeys(){
@@ -146,7 +188,7 @@ function loadKeys(){
     symmKey += tinyDecipher.final('base64');
 
     //decipher and store the public key
-    tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
+    tinyDecipher = crypto.createDecipher(symmAlgorithm,getSecret());
     var pubKeyPEM = tinyDecipher.update(pubKeySave,keyStoreType,asymPEMKeyType);
     pubKeyPEM += tinyDecipher.final(asymPEMKeyType);
     console.log("Public Key Recovered: ", pubKeyPEM);
@@ -154,7 +196,7 @@ function loadKeys(){
     pubKey.importKey(pubKeyPEM,pubImportType);
 
     //decipher and store the private key
-    tinyDecipher = crypto.createDecipher(symmAlgorithm,secret);
+    tinyDecipher = crypto.createDecipher(symmAlgorithm,getSecret());
     var privKeyPEM = tinyDecipher.update(privKeySave,keyStoreType,asymPEMKeyType);
     privKeyPEM += tinyDecipher.final(asymPEMKeyType);
     console.log("Private Key Recovered: ", privKeyPEM);
