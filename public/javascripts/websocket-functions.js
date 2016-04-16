@@ -27,7 +27,7 @@ $(function(){
 
     function handleBoxClick(clickedElem,event){
         var spanID = $(clickedElem).children().children().children().attr('id');
-        console.log(spanID);
+        //console.log(spanID);
         if(spanID !== undefined){
             event.stopPropagation();
             if(currentBox != spanID){
@@ -75,21 +75,14 @@ $(function(){
     });
 
     $('*',"[class*= 'challengeBox']").on("keyup",function(e){
+        //check current box
+        sendUpdate();
+    });
 
-        var curElement = document.activeElement;
+    function sendUpdate(){
+        var curElement = $('#'+currentBox)[0];
 
         var elementClass = curElement.className.toString();
-        var player = $("body").data("whoami");
-        var ownsBox = (elementClass.indexOf(player) != -1);
-
-        //logic for slowing down deletion when deleting from an opponent's box
-        if(!ownsBox && backspaceSlowdown)
-            e.preventDefault();
-        else if(!ownsBox)
-        {
-            backspaceSlowdown = true;
-            setTimeout(function(){backspaceSlowdown = false},backspaceSlowdownTime);
-        }
 
         //why wont contains work? I have to do this every time to get this to make sense,
         // aslo why does class name not return just the class name.
@@ -101,9 +94,8 @@ $(function(){
         var oppositeText = document.getElementById(oppositeId).textContent;
         var m = {first:{id:curElement.id,text:curElement.textContent},
             second:{id:oppositeId,text:oppositeText}};//check their stuff
-        socket.emit('new_text',m);//check current box
-
-    });
+        socket.emit('new_text',m);
+    }
 
     $(document).on('keydown',function(event){
         if (event.which == 8 || event.keyCode == 8) {
@@ -129,6 +121,7 @@ $(function(){
         {
             backspaceSlowdown = true;
             setTimeout(function(){
+                sendUpdate();
                 backspaceSlowdown = false;
             },backspaceSlowdownTime);
 
