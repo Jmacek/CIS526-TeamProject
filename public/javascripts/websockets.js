@@ -365,10 +365,12 @@ $(function(){
 
     $(document).on('keydown',function(event){
         if (event.which == 8 || event.keyCode == 8) {
-            backspaceIsPressed = true
+            backspaceIsPressed = true;
+            if($(event.target).is('body'))
+                event.preventDefault();
+            else
+                console.log($(event.target));
         }
-        if($(event.target).is('body'))
-            event.preventDefault();
         var curElement = document.activeElement;
 
         var elementClass = curElement.className.toString();
@@ -425,7 +427,8 @@ $(function(){
         var players = info.players;
         var player1 = players['player1'];
         var player2 = players['player2'];
-
+        var playerId;
+        var currentPlayer;
 
         if(info.number == 1) {
             $("body").data("whoami", "player1");
@@ -449,9 +452,14 @@ $(function(){
             currentPlayer = 2;
             opponent = 1;
         }
-        count = info.time;
-        counter=setInterval(timer, 1000);
+        $('#instructions div h4:nth-of-type(1)').html('You are <span class='+playerId+'> Player '+currentPlayer+'!</span>');
+        $('#instructions').attr('class','fullscreen');
         $('#loadScreen').attr('class','hidden');
+        setTimeout(function(){
+            $('#instructions').attr('class','hidden');
+            count = info.time;
+            counter=setInterval(timer, 1000);
+        },10000);
     });
 
     socket.on('game_over',function(msg){

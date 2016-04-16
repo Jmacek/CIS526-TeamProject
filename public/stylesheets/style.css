@@ -42,19 +42,16 @@ div, span{
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   z-index:1000;
 }
-
-#loadScreen > div{
+.fullscreen > div{
   margin-top:20%;
-  /*margin-bottom:60%;*/
+}
+
+#instructions >div{
+  margin-top:10%;
 }
 
 [class*='challengeBox'] *{
   font: 20px "Lucida Grande", Helvetica, Arial, sans-serif,bold;
-}
-
-#gameOverScreen > div{
-  margin-top:15%;
-  /*margin-bottom: 60%;*/
 }
 
 h1 {
