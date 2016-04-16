@@ -40,7 +40,7 @@ div, span{
   text-align: center;
   background: url("../images/asanoha-400px.png");
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  z-index:1000;
+  z-index:999;
 }
 .fullscreen > div{
   margin-top:20%;
@@ -63,6 +63,7 @@ h2 {
 a {
   color: #00B7FF;
 }
+
 .catch-div {
   text-align: center;
 }
