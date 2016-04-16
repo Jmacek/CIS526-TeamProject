@@ -159,7 +159,7 @@ function getSecret() {
                 return getSecret();
             }
             else { //any other error
-                console.log(e);
+                throw e;
             }
         }
     }
