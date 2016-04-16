@@ -8,7 +8,9 @@ var crypto = require('crypto'),
 const symmAlgorithm = 'aes-256-ctr';
 const signAlgorithm = 'RSA-SHA256';
 const hashAlgorithm = 'sha256';
+//secret vars needs to be declared here
 var secret = "";
+const secretFile = "./authentication/secret.txt";
 var tinyCipher = crypto.createCipher(symmAlgorithm, getSecret());
 var tinyDecipher = crypto.createDecipher(symmAlgorithm,getSecret());
 
@@ -16,7 +18,6 @@ var tinyDecipher = crypto.createDecipher(symmAlgorithm,getSecret());
 const privFile = "./authentication/privKey.txt";
 const pubFile = "./authentication/pubKey.txt";
 const symmFile = "./authentication/symmKey.txt";
-const secretFile = "./authentication/secret.txt";
 
 //loads or generates keys
 fs.access(privFile, fs.F_OK, function(err){
