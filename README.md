@@ -28,7 +28,8 @@ If you would like to encrypt your site traffic, do the following:
 ### Accessing the WebService
 
 **development**
-If you have a CRT you can use https, if not http should work.
+
+If you set up htpps you can use https, if not http should work.
 - Home -- https://localhost:8081/
 - Login -- https://localhost:8081/login
 - Challange -- https://localhost:8081/challenge
