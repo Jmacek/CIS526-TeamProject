@@ -215,7 +215,13 @@ var Encryption = {
     },
 
     serveSymmKey:function(){
-        return getSymmmetric();
+        try{
+            return getSymmmetric();
+        }
+        catch(err){
+            seed();
+            return getSymmmetric();
+        }
     },
 
     //signs a piece of data with the private key
