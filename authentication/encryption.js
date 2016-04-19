@@ -152,6 +152,8 @@ function getSecret() {
     if (secret === null || secret === undefined || secret === ""){
         try {
             secret = fs.readFileSync(secretFile, 'utf8');
+            if(seed === "")
+                seedSecret();
             return getSecret();
         } catch(e) {
             if (e.code === 'ENOENT') { //code for file not found
