@@ -3,8 +3,8 @@
  */
 process.env.NODE_ENV = 'test';
 
-var app = require('../bin/www.js'),
-    server,
+
+var    server,
     http = require('http'),
     assert = require('assert'),
     fs = require('fs'),
@@ -14,16 +14,9 @@ var app = require('../bin/www.js'),
 
 
 before(function() {
-    // Launch the server
-    app.start();
-
+    var app = require('./../bin/www');
     // also, store the app globally
     global.app = app;
-});
-
-after(function(){
-    console.log("shutting down...")
-    app.stop();
 });
 
 describe('app tests', function() {
@@ -31,6 +24,8 @@ describe('app tests', function() {
     it('app should exist', function() {
         assert.ok(app);
     });
+
+
 
     //it('should be listening at ' + host, function(done){
     //    http.get(host, function(res) {
