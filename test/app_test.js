@@ -3,7 +3,7 @@
  */
 process.env.NODE_ENV = 'test';
 
-var app = require('../app.js'),
+var app = require('../bin/www.js'),
     server,
     http = require('http'),
     assert = require('assert'),

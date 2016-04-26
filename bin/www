@@ -123,3 +123,8 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+var ser = {};
+ser.start = startServer();
+
+module.exports = ser;
