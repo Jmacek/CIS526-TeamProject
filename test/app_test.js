@@ -4,8 +4,7 @@
 process.env.NODE_ENV = 'test';
 
 
-var    server,
-    http = require('http'),
+var http = require('http'),
     assert = require('assert'),
     fs = require('fs'),
     url = require('url'),
@@ -14,9 +13,8 @@ var    server,
 
 
 before(function() {
-    var app = require('./../bin/www');
     // also, store the app globally
-    global.app = app;
+    global.app = require('./../bin/www');
 });
 
 describe('app tests', function() {
