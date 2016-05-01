@@ -16,16 +16,8 @@ function seed(){
 
         //Drop table if exists
         db.run("DROP TABLE IF EXISTS Scores");
-        db.run("CREATE TABLE Scores(winnerScore INTEGER PRIMARY KEY, player1 TEXT, player2 TEXT, winner TEXT)");
+        db.run("CREATE TABLE Scores(ID INTEGER PRIMARY KEY, player1 TEXT, player2 TEXT, winner TEXT, winnerScore INTEGER)");
     });
-}
-function saveScores(winner,winnerScore, player1, player2){
-    db.run("INSERT INTO Scores (winnerScore, player1, player2, winner) VALUES (?,?,?,?)",
-        winnerScore, player1, player2, winner, function(err){
-            if(err){
-                throw err;
-            }
-        });
 }
 
 module.exports = exports = db;

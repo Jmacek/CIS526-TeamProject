@@ -7,8 +7,9 @@ var gameArr = {};//matches gameIDs to players tuple (socketID,playername) for bo
 var waitQueue = [];
 var socketArr={};//matches sockets to socketIDs
 var playerArr = [];//matches players to socketIDs
-var UltraList = [];//list of all challnge words in all games.
+var UltraList = [];//list of all challenge words in all games.
 var gameTime = 120;//length of game (in seconds)
+var db = require('../database/db');
 
 //where a given socket
 function connect(socket) {
@@ -147,6 +148,15 @@ function connect(socket) {
             var player2 = player;
             createGame(player1,player2);
         }
+    });
+    socket.on('saveToDB', function(data){
+       console.log("IT WORKED======================");
+        db.run("INSERT INTO Scores (player1, player2, winner, winnerScore) VALUES (?,?,?,?)",
+            data.player1, data.player2, data.winner, data.winnerScore, function(err){
+                if(err){
+                    throw err;
+                }
+            });
     });
 
     socket.emit('identify');

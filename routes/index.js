@@ -17,11 +17,10 @@ router.get('/challenge', function(req, res, next) {
 });
 router.get('/scoreboard', function(req, res, next) {
     var scores = [];
-    db.each("Select * from Scores LIMIT 10", function(err, row){
+    db.each("Select * from Scores ORDER BY winnerScore DESC LIMIT 10", function(err, row){
         if(err) throw err;
         scores.push(row);
     }, function(){
-        scores.reverse();
         res.render('scoreboard', { title: 'Scoreboard page', username: req.session.user.username, isAdmin: req.session.user.admin, scores: scores });
     });
 

@@ -9,5 +9,5 @@ db.serialize(function(){
 
     //Drop table if exists
     db.run("DROP TABLE IF EXISTS Scores");
-    db.run("CREATE TABLE Scores(winnerScore INTEGER PRIMARY KEY, player1 TEXT, player2 TEXT, winner TEXT)");
+    db.run("CREATE TABLE Scores(ID INTEGER PRIMARY KEY, player1 TEXT, player2 TEXT, winner TEXT, winnerScore INTEGER)");
 });
