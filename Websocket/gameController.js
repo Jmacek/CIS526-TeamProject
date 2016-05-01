@@ -150,7 +150,6 @@ function connect(socket) {
         }
     });
     socket.on('saveToDB', function(data){
-       console.log("IT WORKED======================");
         db.run("INSERT INTO Scores (player1, player2, winner, winnerScore) VALUES (?,?,?,?)",
             data.player1, data.player2, data.winner, data.winnerScore, function(err){
                 if(err){
