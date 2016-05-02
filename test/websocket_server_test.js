@@ -388,14 +388,6 @@ var serverTests = function(){
     });
 };
 
-var clientTests = function(){
-
-    it('Client should receive "identify message on startup',function(){
-
-    });
-};
-
-
 
 describe('Websocket tests', function() {
 
