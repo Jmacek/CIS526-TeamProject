@@ -146,3 +146,6 @@ span.writing:focus{
   -moz-box-shadow: 3px 4px 51px 5px blue;
   box-shadow: 3px 4px 51px 5px blue;
 }
+.centered-panel{
+  text-align: center;
+}

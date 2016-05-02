@@ -16,7 +16,14 @@ router.get('/challenge', function(req, res, next) {
   res.render('challenge', { title: 'Challenge Page', username: req.session.user.username, isAdmin: req.session.user.admin});
 });
 router.get('/scoreboard', function(req, res, next) {
-  res.render('scoreboard', { title: 'Scoreboard page', username: req.session.user.username, isAdmin: req.session.user.admin });
+    var scores = [];
+    db.each("Select * from Scores ORDER BY winnerScore DESC LIMIT 10", function(err, row){
+        if(err) throw err;
+        scores.push(row);
+    }, function(){
+        res.render('scoreboard', { title: 'Scoreboard page', username: req.session.user.username, isAdmin: req.session.user.admin, scores: scores });
+    });
+
 });
 
 router.get('/login', session.new);
@@ -56,5 +63,9 @@ router.post('/register', function(req, res){
           }
       });
 });
+function getScores(){
+
+
+}
 
 module.exports = router;

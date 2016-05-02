@@ -100,7 +100,7 @@ $(function(){
     $(document).on('keydown',function(event){
         if (event.which == 8 || event.keyCode == 8) {
             backspaceIsPressed = true;
-            console.log(event);
+            //console.log(event);
             if($(event.target).is('body'))
                 event.preventDefault();
             //else
@@ -347,12 +347,12 @@ function timer()
 
 function setSelectionRange(input, selectionStart, selectionEnd) {
     if (input.setSelectionRange) {
-        console.log('if');
+        //console.log('if');
         input.focus();
         input.setSelectionRange(selectionStart, selectionEnd);
     }
     else if (input.createTextRange) {
-        console.log('else');
+        //console.log('else');
         var range = input.createTextRange();
         range.collapse(true);
         range.moveEnd('character', selectionEnd);

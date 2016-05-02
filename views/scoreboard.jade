@@ -7,4 +7,9 @@ block content
         .col-md-4.col-sm-6.col-xs-12
         .col-md-4.col-sm-6.col-xs-12
         .col-md-4.col-sm-6.col-xs-12
-    +panel("Player scores", "success") blah blah blah
+    +panel("Player scores", "primary")
+        each score, i in scores
+            +panel("Rank # "+ (i+1), "success", "centered-panel")
+                h4 Winner: #{score.winner}
+                h4 Players: #{score.player1} vs #{score.player2}
+                h4 Score: #{score.winnerScore}
