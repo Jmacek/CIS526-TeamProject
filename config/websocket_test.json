@@ -1,0 +1,8 @@
+{
+  "port":8081,
+  "serverURL" : "http://localhost:8081",
+  "clientOptions" :{
+  "transports": ["websocket"],
+  "'force new connection'": true
+  }
+}

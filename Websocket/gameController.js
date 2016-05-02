@@ -1,78 +1,55 @@
 /**
  * Created by Matt on 4/1/2016.
  */
+    var assert = require('assert');
 
-var gameIDArr = {}; //matches sockets to gameIDs
-var gameArr = {};//matches gameIDs to players tuple (socketID,playername) for both players and timeout object
-var waitQueue = [];
-var socketArr={};//matches sockets to socketIDs
-var playerArr = [];//matches players to socketIDs
-var UltraList = [];//list of all challnge words in all games.
-var gameTime = 120;//length of game (in seconds)
+var data = {
+    gameIDArr : {}, //matches sockets to gameIDs
+    gameArr : {},//matches gameIDs to players tuple (socketID,playername) for both players and timeout object
+    waitQueue : [],
+    socketArr : {},//matches sockets to socketIDs
+    playerArr : [],//matches players to socketIDs
+    UltraList : [],//list of all challnge words in all games.
+    gameTime : 120//length of game (in seconds)
+};
+
+var gameIDArr = data.gameIDArr; //matches sockets to gameIDs
+var gameArr = data.gameArr;//matches gameIDs to players tuple (socketID,playername) for both players and timeout object
+var waitQueue = data.waitQueue;
+var socketArr= data.socketArr;//matches sockets to socketIDs
+var playerArr = data.playerArr;//matches players to socketIDs
+var UltraList = data.UltraList;//list of all challnge words in all games.
+var gameTime = data.gameTime;//length of game (in seconds)
+
+var functions = {
+    showConnection:showConnection,
+    GoThroughSuperlist:GoThroughSuperlist,
+    setChallenge:setChallenge,
+    sendChallenges:sendChallenges,
+    sendMatchup:sendMatchup,
+    createGame:createGame,
+    sendGameOver:sendGameOver,
+    lookupSocket:lookupSocket,
+    lookupPlayer:lookupPlayer,
+    lookupGameID:lookupGameID,
+    lookupGame:lookupGame,
+    lookupOpponent:lookupOpponent
+};
+
 
 //where a given socket
 function connect(socket) {
 
-    var id = '';
-    for (var propertyName in this.connected) {
-        id = propertyName;
-    }
-    var clientIP = this.connected[id].client.conn.remoteAddress;
-    console.log("(IPv6) ", clientIP, "connected");
+    var f = functions;
 
-
-    function GoThroughSuperlist(id,text,superList,socketID) {
-        var num = id[id.length - 1]-1;//last char is the num
-        var player = id.split("-")[0];
-        var currWords = text.split(" ");
-        var used = [];
-        var numActive = 0; // this number is the number of active words. it must be zero by the end of the nested loop
-        var curPlayer = lookupSocket(socketID);
-        var opponent = lookupOpponent(socketID);
-        // or the next word will not be revealed
-        for(var i = 0; i < superList[num].length; i++) {
-            if(superList[num][i].attribute == 'active'){numActive++;}//there was an active element
-            var found = false;//assume the super word does not exist in the text box
-            if(superList[num][i].attribute != 'hidden') {//don't want to check for a hidden value
-                for (var j = 0; j < currWords.length; j++) {
-                    if(!used[j]) {
-                        if (superList[num][i].attribute == 'active' && currWords[j].trim() == superList[num][i].word) {
-                            superList[num][i].attribute = player;
-                            found = true;
-                            used[j] = true;//this word was used
-                            numActive--; //this active element was in the text box
-                            curPlayer.emit('flash', num, player); //flash challenge box
-                            opponent.emit('flash', num, player); //flash challenge box
-                            break;//no need to search anymore the word was found
-                        }
-                        else if (superList[num][i].attribute == player && currWords[j].trim() == superList[num][i].word) {
-                            found = true;//super word does exist in the text box
-                            used[j] = true;//this word was used
-                            //opponent.emit('flash', num, player);
-                            break;//no need to search anymore the word was found
-                        }
-                    }
-                }
-            }
-            else {//if we hit a hidden element we exit the loop, all other elements will be hidden
-                if(numActive == 0){//if there are no active elements
-                    superList[num][i].attribute = 'active';//make it active
-                }
-                break;//break out of the loop
-            }
-            if(!found && superList[num][i].attribute == player){
-                superList[num][i].attribute = 'active';
-            }//it is up for grabs.
-        }//end of outer for loop
-        return superList;
-    }
+    var clientIP = f.showConnection(this);
 
     socket.on('new_text',function(m) {
 
-        var gameID = lookupGameID(socket.id);//gets the gameid
-        var opponent = lookupOpponent(socket.id);
-        var s = GoThroughSuperlist(m.first.id, m.first.text, UltraList[gameID],socket.id);//updates the super list
-        s = GoThroughSuperlist(m.second.id, m.second.text, UltraList[gameID],socket.id);//updates it for the other guy
+        var gameID = f.lookupGameID(socket.id);//gets the gameid
+        var opponent = f.lookupOpponent(socket.id);
+        var s = f.GoThroughSuperlist(m.first.id, m.first.text, UltraList[gameID],socket.id);//updates the super list
+        s = f.GoThroughSuperlist(m.second.id, m.second.text, UltraList[gameID],socket.id);//updates it for the other guy
         socket.emit('score', s);
         opponent.emit('score', s);
 
@@ -81,13 +58,13 @@ function connect(socket) {
     });
 
     socket.on('disconnect', function () {
-        console.log(clientIP, " disconnected");
+        //console.log(clientIP, " disconnected");
         //remove from socketArr
         if(socket.id in gameIDArr){
-            var gameID = lookupGameID(socket.id);
-            var opponent = lookupOpponent(socket.id);
+            var gameID = f.lookupGameID(socket.id);
+            var opponent = f.lookupOpponent(socket.id);
             delete gameIDArr[socket.id];
-            var gameTuple = lookupGame(gameID);
+            var gameTuple = f.lookupGame(gameID);
             clearTimeout(gameTuple.timeout);
             if(opponent) {
                 opponent.emit('game_over', 'forfeit');
@@ -108,37 +85,91 @@ function connect(socket) {
     });
 
     socket.on('catch',function(m) {
-        var opponent = lookupOpponent(socket.id);
+        var opponent = f.lookupOpponent(socket.id);
         if(opponent !== null)
             opponent.emit('catch',m);
     });
 
     socket.on('caught',function(m){
-        var opponent = lookupOpponent(socket.id);
+        var opponent = f.lookupOpponent(socket.id);
         if(opponent !== null)
             opponent.emit('caught',m);
     });
 
     socket.on('identity',function(playerName){
-        //TODO: form reset upon connect
-        socketArr[socket.id]=socket;
-        playerArr[socket.id]=playerName;
-        var player = {socketID:socket.id,playerName:playerName};
-        //console.log("Current waitQueue =",waitQueue);
-        //console.log("waitQueue.length % 2 =",waitQueue.length % 2);
+        socketArr[socket.id]= socket;
+        playerArr[socket.id]= playerName;
+        var player = {socketID:socket.id,playerName: playerName};
         if(waitQueue.length % 2 == 0){
             waitQueue.push(player.socketID);
         }
         else{
             var player1ID = waitQueue.shift();
-            var player1 = {socketID:player1ID,playerName:lookupPlayer(player1ID)};
+            var player1 = {socketID:player1ID,playerName: f.lookupPlayer(player1ID)};
             var player2 = player;
-            createGame(player1,player2);
+            f.createGame(player1,player2);
         }
     });
 
     socket.emit('identify');
 }
+
+function showConnection(s){
+    var id = '';
+    for (var propertyName in s.connected) {
+        id = propertyName;
+    }
+    var clientIP = s.connected[id].client.conn.remoteAddress;
+    //console.log("(IPv6) ", clientIP, "connected");
+    return clientIP;
+}
+
+function GoThroughSuperlist(id,text,superList,socketID) {
+    var num = id[id.length - 1]-1;//last char is the num
+    var player = id.split("-")[0];
+    var currWords = text.split(" ");
+    var used = [];
+    var numActive = 0; // this number is the number of active words. it must be zero by the end of the nested loop
+    var curPlayer = lookupSocket(socketID);
+    var opponent = lookupOpponent(socketID);
+    // or the next word will not be revealed
+    for(var i = 0; i < superList[num].length; i++) {
+        if(superList[num][i].attribute == 'active'){numActive++;}//there was an active element
+        var found = false;//assume the super word does not exist in the text box
+        if(superList[num][i].attribute != 'hidden') {//don't want to check for a hidden value
+            for (var j = 0; j < currWords.length; j++) {
+                if(!used[j]) {
+                    if (superList[num][i].attribute == 'active' && currWords[j].trim() == superList[num][i].word) {
+                        superList[num][i].attribute = player;
+                        found = true;
+                        used[j] = true;//this word was used
+                        numActive--; //this active element was in the text box
+                        curPlayer.emit('flash', num, player); //flash challenge box
+                        opponent.emit('flash', num, player); //flash challenge box
+                        break;//no need to search anymore the word was found
+                    }
+                    else if (superList[num][i].attribute == player && currWords[j].trim() == superList[num][i].word) {
+                        found = true;//super word does exist in the text box
+                        used[j] = true;//this word was used
+                        //opponent.emit('flash', num, player);
+                        break;//no need to search anymore the word was found
+                    }
+                }
+            }
+        }
+        else {//if we hit a hidden element we exit the loop, all other elements will be hidden
+            if(numActive == 0){//if there are no active elements
+                superList[num][i].attribute = 'active';//make it active
+            }
+            break;//break out of the loop
+        }
+        if(!found && superList[num][i].attribute == player){
+            superList[num][i].attribute = 'active';
+        }//it is up for grabs.
+    }//end of outer for loop
+    return superList;
+}
+
 //socket is the client socket that we are sending the update to
 //players is the object {Player1:"name1",Player2:"name2"} identifying
 function setChallenge(orig_challenges,id) {
@@ -166,10 +197,9 @@ function setChallenge(orig_challenges,id) {
 }
 
 function sendGameOver(gameID,msg){
-    console.log("sending gameOver");
-    var gameTuple = lookupGame(gameID);
-    S1 = lookupSocket(gameTuple.player1.socketID);
-    S2 = lookupSocket(gameTuple.player2.socketID);
+    var gameTuple = functions.lookupGame(gameID);
+    S1 = functions.lookupSocket(gameTuple.player1.socketID);
+    S2 = functions.lookupSocket(gameTuple.player2.socketID);
     S1.emit('game_over',msg);
     S2.emit('game_over',msg);
 }
@@ -185,11 +215,6 @@ function createGame(player1,player2){
         challenges[i] = global.challenges[e].challenge;
     }
 
-
-
-
-
-
     //challenges[0] = "This is is is is is challenge 1";
     //challenges[1] = "This is This is This is challenge 2";
     //challenges[2] = "This will be challenge 3 3 3 3";
@@ -202,80 +227,81 @@ function createGame(player1,player2){
     gameIDArr[player1.socketID] = gameID;
     gameIDArr[player2.socketID] = gameID;
 
-    setChallenge(challenges,gameID);
+    functions.setChallenge(challenges,gameID);
 
     console.log("player1 socketID = "+player1.socketID);
     console.log("player2 socketID = "+player2.socketID);
 
-    var timeoutObj = setTimeout(sendGameOver,gameTime*1000,gameID);
+    var timeoutObj = setTimeout(functions.sendGameOver,data.gameTime*1000,gameID);
     var gameTuple = {player1:player1,player2:player2,timeout:timeoutObj};
 
     gameArr[gameID]=gameTuple;
 
     var matchup = {player1:player1.playerName,player2:player2.playerName};
-    sendMatchup(gameTuple,matchup,gameTime);
+    functions.sendMatchup(gameTuple,matchup,data.gameTime-11);
 
-    sendChallenges(gameTuple,UltraList[gameID])
+    functions.sendChallenges(gameTuple,UltraList[gameID])
 }
 
 function lookupSocket(socketID){
     if(socketID in socketArr)
         return socketArr[socketID];
-    else
-        console.log("SocketID not in socketArr!");
+    //else
+    //    console.log("SocketID "+socketID+" not in socketArr!\n");
     return null
 }
 
 function lookupPlayer(socketID){
     if(socketID in playerArr)
         return playerArr[socketID];
-    else
-        console.log("SocketID not in playerArr!");
+    //else
+    //    console.log("SocketID not in playerArr!");
     return null
 }
 
 function lookupGameID(socketID){
     if(socketID in gameIDArr)
         return gameIDArr[socketID];
-    else
-        console.log("SocketID not in gameIDArr!"+ JSON.stringify(gameIDArr));
+    //else
+    //    console.log("SocketID not in gameIDArr!"+ JSON.stringify(gameIDArr));
     return null
 }
 
 function lookupGame(gameID){
     if(gameID in gameArr)
         return gameArr[gameID];
-    else
-        console.log(gameID, "not in gameArr!",gameArr);
+    //else
+    //    console.log(gameID, "not in gameArr!",gameArr);
     return null
 }
 
 function lookupOpponent(socketID){
-    var gameID = lookupGameID(socketID);
+    var gameID = functions.lookupGameID(socketID);
     if(gameID === null)
         return null;
-    var game = lookupGame(gameID);
+    var game = functions.lookupGame(gameID);
     firstPlayer = game['player1'].socketID;
     if (socketID == firstPlayer)
-        return lookupSocket(game['player2'].socketID);
+        return functions.lookupSocket(game['player2'].socketID);
     else
-        return lookupSocket(firstPlayer);
+        return functions.lookupSocket(firstPlayer);
+
 }
 
 //Sends the matchup for the game to the players in the form of:
 //{player1:"name",player2:"name"}
 function sendMatchup(gameTuple,matchup,time){
-    S1 = lookupSocket(gameTuple.player1.socketID);
-    S2 = lookupSocket(gameTuple.player2.socketID);
-    console.log("Setting players: ",matchup);
+    S1 = functions.lookupSocket(gameTuple.player1.socketID);
+    S2 = functions.lookupSocket(gameTuple.player2.socketID);
+    console.log("Setting players: ",matchup,'\n');
     S1.emit('match_set',{players:matchup,number:1,time:time});
     //console.log("Socket ID "+S1.id+" is set as first player");
     S2.emit('match_set',{players:matchup,number:2,time:time});//reversed the 2 and 1 somewhere
 }
 
 function sendChallenges(gameTuple,challenges){
-    S1 = lookupSocket(gameTuple.player1.socketID);
-    S2 = lookupSocket(gameTuple.player2.socketID);
+    S1 = functions.lookupSocket(gameTuple.player1.socketID);
+    S2 = functions.lookupSocket(gameTuple.player2.socketID);
     S1.emit('score',challenges);
     S2.emit('score',challenges);
 }
@@ -284,4 +310,7 @@ function randomInt (low, high) {
     return Math.floor(Math.random() * (high - low) + low);
 }
 
-module.exports = exports = connect;
+module.exports = exports = {
+    functions:functions,
+    connect:connect,
+    data:data};

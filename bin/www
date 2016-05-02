@@ -50,7 +50,7 @@ function startServer(){
   var io = require('socket.io').listen(server);//(server);
   var webSocket = require('../Websocket/gameController.js');
 
-  io.on('connection', webSocket);
+  io.on('connection', webSocket.connect);
 
   /**
    * Listen on provided port, on all network interfaces.

@@ -8,7 +8,7 @@ var superList = [];
 
 var servePenaltyTime = 10; //in seconds
 var introTime = 10; //in seconds
-var gameTime = 120; //in seconds
+//var gameTime = 120; //in seconds
 
 $(function(){
 
@@ -314,19 +314,19 @@ function setScore() {
     } //uses super list to update the challenge boxes.
 }//initialize the super list
 
-function showIntro(currentPlayer){
+function showIntro(currentPlayer,time){
     var playerID = $("body").data("whoami");
     $('#instructions div h4:nth-of-type(1)').html('You are <span class='+playerID+'> Player '+currentPlayer+'!</span>');
     $('#instructions').attr('class','fullscreen');
     $('#loadScreen').attr('class','hidden');
     setTimeout(function(){
         $('#instructions').attr('class','hidden');
-        startGameClock();
+        startGameClock(time);
     },introTime*1000);
 }
 
-function startGameClock(){
-    count = gameTime;
+function startGameClock(time){
+    count = time;
     counter=setInterval(timer, 1000);
 }
 

@@ -95,7 +95,7 @@ $(function(){
             $('h2.player2').html('Me!');
             currentPlayer = 2;
         }
-        showIntro(currentPlayer);
+        showIntro(currentPlayer,info.time);
     });
 
     socket.on('game_over',function(msg){
