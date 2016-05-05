@@ -1,0 +1,4 @@
+{
+  "host" : "http://localhost:8081",
+  "casHost" : "https://localhost:8091"
+}
