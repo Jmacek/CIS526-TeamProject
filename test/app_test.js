@@ -24,7 +24,7 @@ describe('app tests', function() {
     });
 
 
-
+    //test to be sure the server is running.
     it('should be listening at ' + host, function(done){
         http.get(host, function(res) {
             console.log(res.statusCode)
@@ -33,7 +33,7 @@ describe('app tests', function() {
         });
     });
 
-
+    //test the function with the given code and title
     function testCodeAndTitle(url, statusCode, title)
     {
         it('should have status code: '+statusCode, function(done) {
