@@ -24,7 +24,7 @@ describe('app tests', function() {
     });
 
 
-
+    //test to be sure the server is running.
     it('should be listening at ' + host, function(done){
         http.get(host, function(res) {
             console.log(res.statusCode)
@@ -33,48 +33,38 @@ describe('app tests', function() {
         });
     });
 
-    //im tired and done with javascripts bs
-    function getElement(name, body)
+    //test the function with the given code and title
+    function testCodeAndTitle(url, statusCode, title)
     {
-        var p = body.split("<"+name+">");
-        var r = p[1].split("</"+name+">")[0];
-        return r;
-    }
-
-    function HTMLObject(body)
-    {
-        var output = {
-            title: getElement("title",body),
-            style: getElement("style",body),
-            script: getElement("script",body)
-        }
-        return output;
-    }
-
-    function testStaticFile(url, path) {
-        it('should serve ' + url + ' from ' + path, function(done) {
-            var fileBody = fs.readFileSync(path, {encoding: "utf-8"});
-            http.get(host + url, function(res) {
-                assert.equal(res.statusCode, 200);
+        it('should have status code: '+statusCode, function(done) {
+            http.get(host + url,function(res){
+                assert.equal(res.statusCode,statusCode);
                 var body = "";
                 res.on('data', function(data) {body += data;});
                 res.on('end', function() {
-                var htmlFile = HTMLObject(fileBody);
-                var htmlRes = HTMLObject(body);
-                assert.equal(htmlFile,htmlRes);
+                    assert.equal(res.statusCode, statusCode);
+                    var resTitle = body.split("<title>")[1].split("</title>")[0];
+                    assert.equal(resTitle,title);
+                    done();
                 });
-                //res.on('err', function(err) {done(err);});
-                done();
+                res.on('err', function(err){done(err);});
             });
+
         });
     }
 
+    //all the routs that need to be tested
     [
-        ['/mockup', './public/mockup.html'],
-        //['/rides.js', './public/rides.js'],
-        //['/favicon.ico', './public/favicon.ico']
+        ['/challenge',200,"Challenge Page"],
+        ['/scoreboard',200,"Scoreboard page"],
+        ['/login',200,"Login"],
+        ['/logout',200,""],
+        ['/register',200,"Register Here"],
+        ['/foobar',404,""],
+        ['/',200, "Home Page"]
     ].forEach(function(spec){
-        testStaticFile(spec[0], spec[1]);
+        testCodeAndTitle(spec[0],spec[1],spec[2]);
     });
+
 
 });
