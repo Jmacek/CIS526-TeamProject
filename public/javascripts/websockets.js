@@ -65,9 +65,9 @@ $(function(){
         //if game had already started, force reload
         if ($('body').data('whoami'))
             window.location.reload();
-        console.log("Setting self as: ", userName);
+        //console.log("Setting self as: ", userName);
         $("body").data("playerName",userName);
-        console.log("body.data('playerName') set as: ",$("body").data("playerName"));
+        //console.log("body.data('playerName') set as: ",$("body").data("playerName"));
         socket.emit('identity',userName);
     });
 
@@ -98,24 +98,51 @@ $(function(){
         showIntro(currentPlayer,info.time);
     });
 
-    socket.on('game_over',function(msg){
+    socket.on('game_over',function(data){
         document.getElementById("timer").innerHTML="Game Over!";
         var score1 = $('#player1_score').text();
         var score2 = $('#player2_score').text();
+        var player1 = data.player1;
+        var player2 = data.player2;
+        var winnerScore;
         var winner;
 
         var win = $('#gameOverScreen div h3:nth-of-type(1)');
-        if (score1>score2){
-            win.text('Winner: Player 1');
-            win.attr('class','player1');
+        var forfeit = $('#gameOverScreen div h1:nth-of-type(1)');
+        if(data.playerForfeit){
+            forfeit.text(data.playerForfeit + " has forfeited");
+            if(data.playerForfeit === player1) {
+                win.text('Winner: ' + player2);
+                win.attr('class','player2');
+            }
+            else{
+                win.text('Winner: ' + player1);
+                win.attr('class','player1');
+            }
         }
-        else if (score1<score2) {
-            win.text('Winner: Player 2');
-            win.attr('class','player2');
+        else {
+            if (score1 > score2) {
+                win.text('Winner: ' + player1);
+                win.attr('class', 'player1');
+                winner = player1;
+                winnerScore = score1;
+            }
+            else if (score1 < score2) {
+                win.text('Winner: ' + player2);
+                win.attr('class', 'player2');
+                winner = player2;
+                winnerScore = score2;
+            }
+            else {
+                win.text('Tie!');
+                winner = "It was a tie";
+                winnerScore = score1;
+            }
         }
-        else
-            win.text('Tie!');
-
+        //Save to DB
+        if (data.msg != null && data.msg === 'save') {
+            socket.emit('saveToDB', { winner: winner, player1: player1, player2: player2, winnerScore: winnerScore});
+        }
         var p1 = $('#gameOverScreen div h4:nth-of-type(1)');
         p1.text('Player 1: '+score1);
         p1.attr('class','player1');
@@ -124,9 +151,6 @@ $(function(){
         p2.attr('class','player2');
 
         $('#gameOverScreen').attr('class','fullscreen');
-        if (msg === 'forfeit')
-            var x = 4;
-            //do something special
-
     });
 });
+

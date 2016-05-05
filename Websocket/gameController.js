@@ -20,6 +20,7 @@ var socketArr= data.socketArr;//matches sockets to socketIDs
 var playerArr = data.playerArr;//matches players to socketIDs
 var UltraList = data.UltraList;//list of all challnge words in all games.
 var gameTime = data.gameTime;//length of game (in seconds)
+var db = require('../database/db');
 
 var functions = {
     showConnection:showConnection,
@@ -66,12 +67,24 @@ function connect(socket) {
             delete gameIDArr[socket.id];
             var gameTuple = f.lookupGame(gameID);
             clearTimeout(gameTuple.timeout);
-            if(opponent) {
-                opponent.emit('game_over', 'forfeit');
+            var S1 = f.lookupSocket(gameTuple.player1.socketID);
+            var S2 = f.lookupSocket(gameTuple.player2.socketID);
+            if(S1 != null && S2 != null) {
+                var player1 = f.lookupPlayer(S1.id);
+                var player2 = f.lookupPlayer(S2.id);
+                if (opponent) {
+                    opponent.emit('game_over', {
+                        player1: player1,
+                        player2: player2,
+                        msg: 'forfeit',
+                        playerForfeit: f.lookupPlayer(socket.id)
+                    });
+                }
             }
+
             //TODO: if game in GameArr, then forefit
         }
-        else{
+        else {
             //remove from waitQueue if in there
             var index = waitQueue.indexOf(socket.id);
             //console.log("Before waitQueue =",waitQueue);
@@ -109,6 +122,14 @@ function connect(socket) {
             var player2 = player;
             f.createGame(player1,player2);
         }
+    });
+    socket.on('saveToDB', function(data){
+        db.run("INSERT INTO Scores (player1, player2, winner, winnerScore) VALUES (?,?,?,?)",
+            data.player1, data.player2, data.winner, data.winnerScore, function(err){
+                if(err){
+                    throw err;
+                }
+            });
     });
 
     socket.emit('identify');
@@ -197,11 +218,15 @@ function setChallenge(orig_challenges,id) {
 }
 
 function sendGameOver(gameID,msg){
+
+    console.log("sending gameOver");
     var gameTuple = functions.lookupGame(gameID);
-    S1 = functions.lookupSocket(gameTuple.player1.socketID);
-    S2 = functions.lookupSocket(gameTuple.player2.socketID);
-    S1.emit('game_over',msg);
-    S2.emit('game_over',msg);
+    var S1 = functions.lookupSocket(gameTuple.player1.socketID);
+    var S2 = functions.lookupSocket(gameTuple.player2.socketID);
+    var player1 = functions.lookupPlayer(S1.id);
+    var player2 = functions.lookupPlayer(S2.id);
+    S1.emit('game_over',{ player1: player1, player2: player2 } );
+    S2.emit('game_over',{ player1: player1, player2: player2, msg: 'save'} ); //sending save message to save score to db
 }
 
 function createGame(player1,player2){
@@ -314,3 +339,4 @@ module.exports = exports = {
     functions:functions,
     connect:connect,
     data:data};
+

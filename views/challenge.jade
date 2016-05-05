@@ -21,6 +21,7 @@ block content
             h4 If you see them deleting your words, DOUBLE CLICK your box to CATCH them and stun them!
     div.hidden#gameOverScreen
         div
+            h1
             h2 Game Over!
             br
             h4 Player 1:
@@ -53,7 +54,7 @@ block content
             .challengedisplay
                 .item
                     span
-                        h2.player1 Player 1
+                        h2.player1.player1Name Player 1
         .col-xs-4.col-centered
             .challengedisplay
                 .item
@@ -63,7 +64,7 @@ block content
             .challengedisplay
                 .item
                     span
-                        h2.player2 Player 2
+                        h2.player2.player2Name Player 2
     - for (var i = 1; i < 4; i++){
         .col-xs-4.col-centered
             .player1.challengeBox.player1-challengeBox
